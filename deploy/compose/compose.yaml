@@ -1,0 +1,115 @@
+name: watchkeeper
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - watchkeeper-pg:/var/lib/postgresql/data
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/01-databases.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  migrate-watchkeeper:
+    build:
+      context: ../..
+      target: runtime
+    command: ["/app/migrate", "-dir", "/app/migrations/watchkeeper"]
+    environment:
+      DATABASE_URL: postgres://watchkeeper:watchkeeper_dev@postgres:5432/watchkeeper?sslmode=disable
+    depends_on:
+      postgres: {condition: service_healthy}
+  migrate-simulator:
+    build:
+      context: ../..
+      target: runtime
+    command: ["/app/migrate", "-dir", "/app/migrations/simulator"]
+    environment:
+      DATABASE_URL: postgres://simulator:simulator_dev@postgres:5432/simulator?sslmode=disable
+    depends_on:
+      postgres: {condition: service_healthy}
+  api:
+    build:
+      context: ../..
+      target: runtime
+    command: ["/app/watchkeeper-api"]
+    environment:
+      WK_DATABASE_URL: postgres://watchkeeper:watchkeeper_dev@postgres:5432/watchkeeper?sslmode=disable
+      WK_AUTH_TOKEN: watchkeeper-dev-token
+      WK_ADMIN_TOKEN: watchkeeper-admin-dev-token
+    ports:
+      - "8080:8080"
+    depends_on:
+      migrate-watchkeeper: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "/app/healthcheck", "http://localhost:8080/health/ready"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  simulator:
+    build:
+      context: ../..
+      target: runtime
+    command: ["/app/service-simulator"]
+    environment:
+      SIM_DATABASE_URL: postgres://simulator:simulator_dev@postgres:5432/simulator?sslmode=disable
+      SIM_AUTH_TOKEN: simulator-dev-token
+      SIM_ADMIN_TOKEN: simulator-admin-dev-token
+    ports:
+      - "8090:8090"
+    depends_on:
+      migrate-simulator: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "/app/healthcheck", "http://localhost:8090/health/ready"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  coordinator:
+    build:
+      context: ../..
+      target: runtime
+    command: ["/app/recovery-coordinator"]
+    environment:
+      WK_API_URL: http://api:8080
+      WK_ADMIN_TOKEN: watchkeeper-admin-dev-token
+      SIMULATOR_URL: http://simulator:8090
+      SIM_AUTH_TOKEN: simulator-dev-token
+    depends_on:
+      api: {condition: service_healthy}
+      simulator: {condition: service_healthy}
+  worker:
+    build:
+      context: ../..
+      target: runtime
+    command: ["/app/workflow-worker"]
+    profiles: ["tools"]
+    environment:
+      WK_API_URL: http://api:8080
+      WK_AUTH_TOKEN: watchkeeper-dev-token
+      SIMULATOR_URL: http://simulator:8090
+      SIM_AUTH_TOKEN: simulator-dev-token
+    depends_on:
+      api: {condition: service_healthy}
+      simulator: {condition: service_healthy}
+  recovery-smoke:
+    build:
+      context: ../..
+      target: runtime
+    command: ["/app/recovery-smoke"]
+    profiles: ["tools"]
+    environment:
+      WK_API_URL: http://api:8080
+      WK_AUTH_TOKEN: watchkeeper-dev-token
+      WK_ADMIN_TOKEN: watchkeeper-admin-dev-token
+      SIMULATOR_URL: http://simulator:8090
+      SIM_AUTH_TOKEN: simulator-dev-token
+    depends_on:
+      api: {condition: service_healthy}
+      simulator: {condition: service_healthy}
+      coordinator: {condition: service_started}
+volumes:
+  watchkeeper-pg:

@@ -1,0 +1,9 @@
+/tmp/docs/
+.env
+.env.*
+!.env.example
+/bin/
+/coverage/
+*.coverprofile
+/results/*
+!/results/.gitkeep

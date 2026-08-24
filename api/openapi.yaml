@@ -1,0 +1,215 @@
+openapi: 3.1.0
+info:
+  title: Watchkeeper API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+security:
+  - bearerAuth: []
+paths:
+  /health/live:
+    get:
+      security: []
+      operationId: live
+      responses:
+        "200": {description: Process is live}
+  /health/ready:
+    get:
+      security: []
+      operationId: ready
+      responses:
+        "200": {description: Database and schema are ready}
+        "503": {description: Dependency is unavailable}
+  /metrics:
+    get:
+      operationId: metrics
+      responses:
+        "200": {description: Prometheus metrics}
+  /v1/operations:
+    post:
+      operationId: prepareOperation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/PrepareRequest"}
+      responses:
+        "201": {description: Operation created, content: {application/json: {schema: {$ref: "#/components/schemas/Operation"}}}}
+        "200": {description: Idempotent replay, content: {application/json: {schema: {$ref: "#/components/schemas/Operation"}}}}
+        "409": {$ref: "#/components/responses/Conflict"}
+        "422": {$ref: "#/components/responses/Validation"}
+    get:
+      operationId: listOperations
+      parameters:
+        - {name: workflow_id, in: query, schema: {type: string}}
+        - {name: state, in: query, schema: {$ref: "#/components/schemas/OperationState"}}
+        - {name: target_service, in: query, schema: {type: string}}
+        - {name: created_after, in: query, schema: {type: string, format: date-time}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 200, default: 50}}
+        - {name: cursor, in: query, schema: {type: string}}
+      responses:
+        "200": {description: Operation page, content: {application/json: {schema: {$ref: "#/components/schemas/OperationPage"}}}}
+  /v1/operations/{operation_id}:
+    parameters:
+      - {$ref: "#/components/parameters/OperationID"}
+    get:
+      operationId: getOperation
+      responses:
+        "200": {description: Operation, content: {application/json: {schema: {$ref: "#/components/schemas/Operation"}}}}
+        "404": {$ref: "#/components/responses/NotFound"}
+  /v1/operations/{operation_id}/confirmations:
+    parameters:
+      - {$ref: "#/components/parameters/OperationID"}
+    post:
+      operationId: confirmOperation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ConfirmRequest"}
+      responses:
+        "200": {description: Confirmed operation or identical replay, content: {application/json: {schema: {$ref: "#/components/schemas/Operation"}}}}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /v1/operations/{operation_id}/events:
+    parameters:
+      - {$ref: "#/components/parameters/OperationID"}
+      - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 200, default: 50}}
+      - {name: cursor, in: query, schema: {type: string}}
+    get:
+      operationId: listOperationEvents
+      responses:
+        "200": {description: Event page, content: {application/json: {schema: {$ref: "#/components/schemas/EventPage"}}}}
+  /v1/operations/{operation_id}/attempts:
+    parameters: [{$ref: "#/components/parameters/OperationID"}]
+    post:
+      operationId: beginRetry
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/VersionReason"}}}}
+      responses: {"200": {description: Retry attempt prepared, content: {application/json: {schema: {$ref: "#/components/schemas/Operation"}}}}, "409": {$ref: "#/components/responses/Conflict"}}
+  /v1/operations/{operation_id}/reconciliation-requests:
+    parameters: [{$ref: "#/components/parameters/OperationID"}]
+    post:
+      operationId: requestReconciliation
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/VersionReason"}}}}
+      responses: {"202": {description: Reconciliation queued}}
+  /v1/operations/{operation_id}/manual-resolutions:
+    parameters: [{$ref: "#/components/parameters/OperationID"}]
+    post:
+      operationId: manuallyResolveOperation
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: true}}}}
+      responses: {"200": {description: Manually resolved operation, content: {application/json: {schema: {$ref: "#/components/schemas/Operation"}}}}}
+  /v1/recovery/claims:
+    post:
+      operationId: claimRecoveryWork
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: true}}}}
+      responses: {"200": {description: Recovery claims}}
+  /v1/recovery/claims/{operation_id}/renew:
+    parameters: [{$ref: "#/components/parameters/OperationID"}]
+    post:
+      operationId: renewRecoveryClaim
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: true}}}}
+      responses: {"200": {description: Renewed recovery lease}}
+  /v1/recovery/claims/{operation_id}/results:
+    parameters: [{$ref: "#/components/parameters/OperationID"}]
+    post:
+      operationId: submitRecoveryResult
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: true}}}}
+      responses: {"200": {description: Resolved operation, content: {application/json: {schema: {$ref: "#/components/schemas/Operation"}}}}}
+components:
+  securitySchemes:
+    bearerAuth: {type: http, scheme: bearer}
+  parameters:
+    OperationID: {name: operation_id, in: path, required: true, schema: {type: string, format: uuid}}
+  responses:
+    Conflict: {description: "State, fingerprint, version, or receipt conflict", content: {application/json: {schema: {$ref: "#/components/schemas/ErrorEnvelope"}}}}
+    Validation: {description: Domain validation failed, content: {application/json: {schema: {$ref: "#/components/schemas/ErrorEnvelope"}}}}
+    NotFound: {description: Resource not found, content: {application/json: {schema: {$ref: "#/components/schemas/ErrorEnvelope"}}}}
+  schemas:
+    OperationState: {type: string, enum: [prepared, confirmed, reconciled, retryable, uncertain]}
+    Strategy: {type: string, enum: [blind_retry, idempotency_key_retry, checkpoint_recovery, watchkeeper]}
+    PrepareRequest:
+      type: object
+      required: [workflow_id, strategy, logical_key, target_service, action, request, expected_effect, capability_profile]
+      properties:
+        workflow_id: {type: string, minLength: 1}
+        strategy: {$ref: "#/components/schemas/Strategy"}
+        experiment_run_id: {type: string, format: uuid}
+        logical_key: {type: string, minLength: 1}
+        target_service: {type: string, enum: [email]}
+        action: {type: string, enum: [send]}
+        request: {type: object, additionalProperties: true}
+        request_fingerprint: {type: string, pattern: "^[a-fA-F0-9]{64}$"}
+        expected_effect: {type: object, additionalProperties: true}
+        capability_profile: {type: string, enum: [receipt_status, idempotency_only, indirect_unique, none]}
+        trace_context: {type: object, additionalProperties: true}
+    ConfirmRequest:
+      type: object
+      required: [expected_version, service_receipt_id, receipt]
+      properties:
+        expected_version: {type: integer, minimum: 1}
+        service_receipt_id: {type: string, minLength: 1}
+        receipt: {type: object, additionalProperties: true}
+        received_at: {type: string, format: date-time}
+    VersionReason:
+      type: object
+      required: [expected_version, reason]
+      properties:
+        expected_version: {type: integer, minimum: 1}
+        reason: {type: string, minLength: 1}
+        actor: {type: string}
+    Receipt:
+      type: object
+      required: [receipt_id, service_receipt_id, receipt_fingerprint, payload, received_at]
+      properties:
+        receipt_id: {type: string, format: uuid}
+        service_receipt_id: {type: string}
+        receipt_fingerprint: {type: string}
+        payload: {type: object, additionalProperties: true}
+        received_at: {type: string, format: date-time}
+    Operation:
+      type: object
+      required: [operation_id, workflow_id, logical_key, target_service, action, request_fingerprint, expected_effect, capability_profile, state, attempt_count, version, prepared_at, created_at, updated_at]
+      properties:
+        operation_id: {type: string, format: uuid}
+        workflow_id: {type: string}
+        logical_key: {type: string}
+        target_service: {type: string}
+        action: {type: string}
+        request_fingerprint: {type: string}
+        expected_effect: {type: object, additionalProperties: true}
+        capability_profile: {type: string}
+        state: {$ref: "#/components/schemas/OperationState"}
+        attempt_count: {type: integer}
+        version: {type: integer, format: int64}
+        prepared_at: {type: string, format: date-time}
+        confirmed_at: {type: string, format: date-time}
+        resolved_at: {type: string, format: date-time}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        receipt: {$ref: "#/components/schemas/Receipt"}
+    OperationPage:
+      type: object
+      required: [items]
+      properties:
+        items: {type: array, items: {$ref: "#/components/schemas/Operation"}}
+        next_cursor: {type: string}
+    Event:
+      type: object
+      additionalProperties: true
+    EventPage:
+      type: object
+      required: [items]
+      properties:
+        items: {type: array, items: {$ref: "#/components/schemas/Event"}}
+        next_cursor: {type: string}
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, request_id]
+          properties:
+            code: {type: string}
+            message: {type: string}
+            request_id: {type: string}
+            details: {type: object, additionalProperties: true}
