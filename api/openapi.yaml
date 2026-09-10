@@ -79,6 +79,13 @@ paths:
       operationId: listOperationEvents
       responses:
         "200": {description: Event page, content: {application/json: {schema: {$ref: "#/components/schemas/EventPage"}}}}
+  /v1/operations/{operation_id}/dispatches:
+    parameters: [{$ref: "#/components/parameters/OperationID"}]
+    post:
+      operationId: authorizeDispatch
+      description: Grants one send for this attempt. A lost response must enter recovery; replay never grants another send.
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: false, required: [expected_version], properties: {expected_version: {type: integer, format: int64, minimum: 1}}}}}}
+      responses: {"200": {description: Single dispatch authorized, content: {application/json: {schema: {$ref: "#/components/schemas/Operation"}}}}, "409": {$ref: "#/components/responses/Conflict"}}
   /v1/operations/{operation_id}/attempts:
     parameters: [{$ref: "#/components/parameters/OperationID"}]
     post:
@@ -169,6 +176,7 @@ components:
       type: object
       required: [operation_id, workflow_id, logical_key, target_service, action, request_fingerprint, expected_effect, capability_profile, state, attempt_count, version, prepared_at, created_at, updated_at]
       properties:
+        dispatch_authorized: {type: boolean, description: Whether dispatch authorization has been issued for this attempt.}
         operation_id: {type: string, format: uuid}
         workflow_id: {type: string}
         logical_key: {type: string}

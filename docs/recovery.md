@@ -5,7 +5,7 @@ Recovery starts when a prepared operation remains unresolved beyond its grace pe
 ## Normal path and recovery path
 
 ```text
-normal:   prepare -> dispatch -> receipt -> confirm -> Confirmed
+normal:   prepare -> authorize one send -> dispatch -> receipt -> confirm -> Confirmed
 
 failure:  prepare -> dispatch -> external commit -> response lost
                                               |
@@ -32,7 +32,9 @@ The current email verifier calls the simulator status endpoint with the stable o
 | Status evidence | Observation | Decision |
 | --- | --- | --- |
 | Authoritative count is exactly one | `completed` | `Reconciled` |
-| Authoritative count is zero | `absent` | `Retryable` |
+| Count is zero after dispatch authorization | `unknown` | `Uncertain` |
+| Dispatch was never authorized | no external evidence required | `Retryable`; stale authorization is fenced by version |
+| Service guarantees durable keyed replay | `unknown` with explicit idempotency contract | `Retryable` |
 | Count is greater than one | `contradictory` | `Uncertain` |
 | Service or network is temporarily unavailable | `transient_error` | Keep recoverable and schedule another verification. |
 | Evidence is non-authoritative or cannot distinguish outcomes | `unknown` | `Uncertain` |
@@ -41,7 +43,7 @@ The raw response is retained as JSON evidence, and an external receipt reference
 
 ## Retry behavior
 
-`Retryable` is permission to attempt dispatch again, not a dispatch itself. The worker calls the attempts endpoint with the current version and reason. Watchkeeper transitions `Retryable -> Prepared`, increments the attempt count, preserves the stable operation ID, and appends an event. The worker may then dispatch.
+`Retryable` is permission to attempt dispatch again, not a dispatch itself. The worker calls the attempts endpoint with the current version and reason. Watchkeeper transitions `Retryable -> Prepared`, increments the attempt count, preserves the stable operation ID, and appends an event. The worker must then acquire single-send authorization from the dispatches endpoint. A lost authorization response must enter recovery; calling the endpoint again never grants a second send for that attempt.
 
 Transient verification failures use bounded scheduling rather than changing the operation to `Retryable`. This distinction prevents service unavailability from being misread as proof that the business effect is absent.
 
@@ -57,12 +59,12 @@ The request must include the expected version, actor, reason, and evidence refer
 ## Failure cases
 
 - **Crash before intent persistence:** no operation is durable and dispatch must not start.
-- **Crash after intent, before dispatch:** status lookup finds absence and authorizes retry.
+- **Crash after intent, before dispatch:** the durable authorization flag proves no compliant worker could have dispatched; recovery invalidates the old version and authorizes a fresh attempt.
 - **Crash after external commit:** status lookup finds completion and reconciles without redispatch.
 - **Crash while holding a claim:** the lease expires and another coordinator re-verifies.
 - **Database interruption during a result:** the transaction commits entirely or rolls back; the operation remains claimable after lease expiry.
 - **Stale or duplicate result:** token and version checks reject it without changing state.
 - **Permanently unverifiable effect:** the operation becomes `Uncertain`; safety takes priority over completion.
 
-Only email status lookup is currently implemented. Receipt lookup, indirect inspection, idempotent repeat, and deliberately unverifiable adapters are next-stage work.
+Email status lookup, exact indirect inspection, explicit idempotency-key replay, and deliberately unverifiable profiles are implemented. See [Benchmarks](benchmarks.md) for the process-crash experiment model.
 

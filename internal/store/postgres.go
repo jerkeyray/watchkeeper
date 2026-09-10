@@ -20,7 +20,7 @@ func NewPostgres(pool *pgxpool.Pool) *Postgres { return &Postgres{pool: pool} }
 func (p *Postgres) Ping(ctx context.Context) error { return p.pool.Ping(ctx) }
 
 func (p *Postgres) SchemaReady(ctx context.Context) error {
-	const expectedSchemaVersion int64 = 1
+	const expectedSchemaVersion int64 = 3
 	var operations, events, migrations string
 	if err := p.pool.QueryRow(ctx, `SELECT coalesce(to_regclass('public.operations')::text,''), coalesce(to_regclass('public.operation_events')::text,''), coalesce(to_regclass('public.goose_db_version')::text,'')`).Scan(&operations, &events, &migrations); err != nil {
 		return err
@@ -300,7 +300,7 @@ func (p *Postgres) ListEvents(ctx context.Context, operationID string, limit int
 }
 
 const operationColumns = `o.id::text,w.external_workflow_id,o.logical_key,o.target_service,o.action,o.request_fingerprint,
-	o.expected_effect,o.capability_profile,o.state,o.attempt_count,o.version,o.prepared_at,o.confirmed_at,o.resolved_at,o.created_at,o.updated_at`
+	o.expected_effect,o.capability_profile,o.state,o.attempt_count,o.version,o.prepared_at,o.confirmed_at,o.resolved_at,o.created_at,o.updated_at,o.dispatch_authorized`
 
 type scanner interface{ Scan(...any) error }
 
@@ -309,7 +309,7 @@ func scanOperation(row scanner) (domain.Operation, error) {
 	var confirmed, resolved pgtype.Timestamptz
 	err := row.Scan(&operation.ID, &operation.WorkflowID, &operation.LogicalKey, &operation.TargetService, &operation.Action,
 		&operation.RequestFingerprint, &operation.ExpectedEffect, &operation.CapabilityProfile, &operation.State, &operation.AttemptCount,
-		&operation.Version, &operation.PreparedAt, &confirmed, &resolved, &operation.CreatedAt, &operation.UpdatedAt)
+		&operation.Version, &operation.PreparedAt, &confirmed, &resolved, &operation.CreatedAt, &operation.UpdatedAt, &operation.DispatchAuthorized)
 	if confirmed.Valid {
 		value := confirmed.Time
 		operation.ConfirmedAt = &value

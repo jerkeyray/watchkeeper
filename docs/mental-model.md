@@ -51,7 +51,7 @@ Uncertain -> Reconciled | Retryable
 | `Prepared` | Intent is durable, but Watchkeeper has no durable completion conclusion. |
 | `Confirmed` | The normal caller persisted an immutable receipt. |
 | `Reconciled` | Recovery obtained authoritative evidence that the effect completed. |
-| `Retryable` | Authoritative evidence established that the effect is absent. |
+| `Retryable` | Another attempt is safe: dispatch was never authorized, or durable idempotency guarantees replay. |
 | `Uncertain` | Available evidence is missing, non-authoritative, or contradictory. Automatic dispatch stops. |
 
 Terminal states have no automatic outgoing transition. `Retryable -> Prepared` increments the attempt while preserving operation identity. An operator may move `Uncertain` only to `Reconciled` or `Retryable`, with actor, reason, and evidence reference.
@@ -70,7 +70,7 @@ The current email adapter implements authoritative status lookup under the `rece
 
 ## Guarantees and boundaries
 
-When authoritative receipt or status evidence is available, Watchkeeper can avoid redispatching a proven committed effect and can authorize retry for a proven absent effect. Every transition is version checked and audit recorded.
+When authoritative receipt or status evidence is available, Watchkeeper can avoid redispatching a proven committed effect and can authorize retry when dispatch was never authorized or explicit idempotency makes replay safe. An empty status response alone cannot rule out a delayed commit. Every transition is version checked and audit recorded.
 
 When evidence is insufficient, the guarantee is conservative behavior: preserve `Uncertain` rather than issue an unsafe retry. Watchkeeper does not promise exactly-once execution, infer generic compensation semantics, or coordinate a distributed transaction with the external service.
 

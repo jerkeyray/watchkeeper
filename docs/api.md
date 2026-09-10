@@ -105,3 +105,7 @@ Errors use a stable JSON envelope with a machine-readable code, human-readable m
 
 The handwritten [`pkg/client`](../pkg/client/) exposes typed operations and conflict errors. It may retry an identical prepare request; confirmation ambiguity must be resolved with a read.
 
+
+## Single-send authorization
+
+`POST /v1/operations/{operation_id}/dispatches` requires public authentication and `{ "expected_version": <current version> }`. A successful response contains the operation with `dispatch_authorized: true` and its new version. Only that successful call authorizes a single send. Conflicting versions, existing authorization, or a recovery claim return `409`. Losing the response is ambiguous: read state and allow recovery, never infer permission from `dispatch_authorized: true`.

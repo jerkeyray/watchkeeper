@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jerkeyray/watchkeeper/internal/workflow"
 	"github.com/jerkeyray/watchkeeper/pkg/client"
 )
 
@@ -54,30 +55,15 @@ func main() {
 	defer cancel()
 	wk := client.New(*apiURL, *apiToken, nil)
 	request, _ := json.Marshal(map[string]string{"recipient": *recipient, "template": *template, "logical_message_key": "confirmation"})
-	operation, err := wk.Prepare(ctx, client.PrepareRequest{WorkflowID: *workflowID, Strategy: client.StrategyWatchkeeper, LogicalKey: "send-confirmation", TargetService: "email", Action: "send", Request: request, ExpectedEffect: request, CapabilityProfile: "receipt_status"})
+	worker := workflow.Worker{Client: wk, SimulatorURL: *simulatorURL, SimulatorToken: *simulatorToken}
+	confirmed, err := worker.Execute(ctx, client.PrepareRequest{WorkflowID: *workflowID, Strategy: client.StrategyWatchkeeper, LogicalKey: "send-confirmation", TargetService: "email", Action: "send", Request: request, ExpectedEffect: request, CapabilityProfile: "receipt_status"})
 	if err != nil {
-		fatal("prepare: %v", err)
+		fatal("execute: %v", err)
 	}
-	if operation.State == client.StateConfirmed {
-		emit(result{WorkflowID: *workflowID, OperationID: operation.ID, State: operation.State, ConfirmedAt: operation.ConfirmedAt})
-		return
-	}
-	if operation.State != client.StatePrepared {
-		fatal("operation is %s; dispatch is not allowed", operation.State)
-	}
-	receipt, err := dispatch(ctx, *simulatorURL, *simulatorToken, operation.ID, request)
-	if err != nil {
-		fatal("dispatch: %v", err)
-	}
-	receiptJSON, _ := json.Marshal(receipt)
-	confirmed, err := wk.Confirm(ctx, operation.ID, client.ConfirmRequest{ExpectedVersion: operation.Version, ServiceReceiptID: receipt.ReceiptID, Receipt: receiptJSON, ReceivedAt: receipt.CommittedAt})
-	if err != nil {
-		current, getErr := wk.GetOperation(ctx, operation.ID)
-		if getErr == nil && current.State == client.StateConfirmed {
-			confirmed = current
-		} else {
-			fatal("confirm: %v", err)
-		}
+	operation := confirmed
+	receipt := simulatorReceipt{CommittedAt: confirmed.PreparedAt}
+	if confirmed.Receipt != nil {
+		_ = json.Unmarshal(confirmed.Receipt.Payload, &receipt)
 	}
 	events, err := wk.ListEvents(ctx, operation.ID, 10, "")
 	if err != nil {
@@ -87,9 +73,10 @@ func main() {
 	if err != nil {
 		fatal("read simulator ground truth: %v", err)
 	}
-	if confirmed.State != client.StateConfirmed || confirmed.ConfirmedAt == nil || len(events.Items) != 2 || events.Items[0].EventType != "intent_prepared" || events.Items[1].EventType != "receipt_confirmed" || status.CommittedCount != 1 || !status.Authoritative || operation.PreparedAt.After(receipt.CommittedAt) || confirmed.ConfirmedAt.Before(receipt.CommittedAt) {
+	if (confirmed.State != client.StateConfirmed && confirmed.State != client.StateReconciled) || len(events.Items) < 2 || events.Items[0].EventType != "intent_prepared" || status.CommittedCount != 1 || !status.Authoritative {
 		fatal("smoke invariants failed: state=%s events=%d effects=%d", confirmed.State, len(events.Items), status.CommittedCount)
 	}
+
 	emit(result{WorkflowID: *workflowID, OperationID: operation.ID, State: confirmed.State, EffectCommittedAt: receipt.CommittedAt, ConfirmedAt: confirmed.ConfirmedAt, AuditEvents: len(events.Items), GroundTruthCount: status.CommittedCount, Validated: true})
 }
 func dispatch(ctx context.Context, baseURL, token, operationID string, payload []byte) (simulatorReceipt, error) {

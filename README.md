@@ -1,10 +1,4 @@
-<p align="center">
-  <picture>
-    <source srcset="docs/brand/logo-dark.svg" media="(prefers-color-scheme: dark)">
-    <source srcset="docs/brand/logo-light.svg" media="(prefers-color-scheme: light)">
-    <img src="docs/brand/logo-light.svg" alt="Watchkeeper" width="420" />
-  </picture>
-</p>
+# Watchkeeper
 
 <p align="center">
   <strong>Crash-consistent recovery for stateful cloud workflows.</strong>
@@ -62,7 +56,7 @@ Normal workflow replay cannot distinguish "the call never happened" from "the ca
 - **Immutable confirmation:** receipt identity and payload are persisted with the `Confirmed` transition atomically; conflicting replays return `409 Conflict`.
 - **Lease-based recovery:** coordinators claim pending work with expiring, hashed lease tokens and optimistic operation versions.
 - **Service verification:** the email adapter queries authoritative status by operation ID instead of redispatching an ambiguous effect.
-- **Evidence-based decisions:** authoritative completion becomes `Reconciled`; authoritative absence becomes `Retryable`; insufficient or contradictory evidence becomes `Uncertain`.
+- **Evidence-based decisions:** authoritative completion becomes `Reconciled`; proven non-dispatch or guaranteed idempotent replay becomes `Retryable`; insufficient or contradictory evidence becomes `Uncertain`.
 - **Manual resolution:** uncertain operations can be rechecked or resolved with an actor, reason, and evidence reference.
 - **Append-only history:** preparation, confirmation, claims, observations, decisions, retries, and manual actions produce ordered audit events.
 - **Research simulator:** an email service writes to an independent committed-effect ledger that acts as experimental ground truth.
@@ -87,7 +81,7 @@ Expected result:
 ```json
 {
   "state": "confirmed",
-  "audit_events": 2,
+  "audit_events": 3,
   "ground_truth_count": 1,
   "validated": true
 }
@@ -104,7 +98,7 @@ Expected result:
 ```json
 {
   "state": "reconciled",
-  "audit_events": 4,
+  "audit_events": 5,
   "redispatched": false,
   "validated": true
 }
@@ -144,7 +138,7 @@ worker crashes after external commit
 | `Prepared` | Intent is durable; completion is not confirmed. | Dispatch normally or verify after the recovery grace period. |
 | `Confirmed` | The normal path stored an immutable receipt. | Workflow continues. |
 | `Reconciled` | Recovery proved the earlier effect completed. | Workflow continues without redispatch. |
-| `Retryable` | Authoritative evidence proved the effect is absent. | Worker may begin another attempt with the same operation ID. |
+| `Retryable` | A new attempt is safe because dispatch never started or the service guarantees keyed replay. | Worker may begin another attempt with the same operation ID. |
 | `Uncertain` | Evidence cannot safely distinguish completion from absence. | Stop automatic dispatch and request review or later verification. |
 
 Allowed transitions are deliberately narrow:
@@ -195,14 +189,15 @@ The coordinator follows one evidence-driven path:
 claim pending intent
   -> verify by operation ID
      -> effect exists       -> Reconciled
-     -> effect absent       -> Retryable
+     -> safe replay proven  -> Retryable
+     -> empty status only   -> Uncertain
      -> temporary failure   -> schedule another verification
      -> evidence ambiguous  -> Uncertain
 ```
 
 A claim contains a one-time lease token, attempt ID, lease expiry, and operation version. Only the live lease holder can submit a result. A crashed coordinator loses its lease; another coordinator can safely re-verify after expiry.
 
-The current email adapter supports authoritative receipt-status lookup. The database schema and state machine already cover future indirect, idempotency, and no-evidence adapters, but those service profiles are not implemented yet.
+The email adapter supports receipt/status lookup, exact indirect inspection, explicit idempotency-key replay, and no-evidence profiles. Empty status after dispatch authorization preserves uncertainty because an earlier request may still commit.
 
 ## Architecture
 
@@ -268,15 +263,16 @@ The test suite covers state transitions, fingerprint canonicalization, API authe
 
 ## Project status
 
-Watchkeeper is a research prototype. Today it supports normal execution and receipt-status recovery for the email workload. It is not yet a production workflow engine or a general exactly-once layer.
+Watchkeeper is a research prototype. Today it supports restartable email workflows and a comparative process-crash benchmark across four recovery strategies and capability profiles. It is not yet a production workflow engine or a general exactly-once layer.
+
+Run `make bench-smoke` to validate the email matrix or `make bench-email` to explicitly start the 100-repetition research suite. See [Email benchmarks](docs/benchmarks.md) for evidence, resume commands, and limitations.
 
 Next stages:
 
-1. Idempotency-only, indirect-verification, and no-evidence capability profiles.
+1. Run and analyze the full research dataset from a pinned environment.
 2. Calendar, inventory, and record-transition workloads.
-3. Deterministic failure injection and K3s deployment.
-4. OpenTelemetry, Prometheus research metrics, and experiment automation.
-5. The full comparative evaluation against blind retry, idempotency retry, and checkpoint recovery.
+3. K3s pod/host failure experiments.
+4. OpenTelemetry and broader operational measurements.
 
 See the detailed [roadmap](docs/roadmap.md).
 

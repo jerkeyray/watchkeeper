@@ -43,3 +43,10 @@ recovery-smoke: compose-up
 	$(COMPOSE) --profile tools run --rm recovery-smoke
 
 smoke-all: smoke recovery-smoke
+
+.PHONY: bench-smoke bench-email
+bench-smoke:
+	./scripts/benchmark.sh run benchmarks/smoke.json
+
+bench-email:
+	./scripts/benchmark.sh run benchmarks/email.json

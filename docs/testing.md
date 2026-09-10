@@ -46,7 +46,7 @@ The normal smoke proof asserts:
 2. The simulator ledger contains exactly one committed effect.
 3. Watchkeeper contains one receipt.
 4. The operation is `Confirmed`.
-5. Prepared and confirmed events are ordered.
+5. Prepared, dispatch-authorized, and confirmed events are ordered.
 
 The recovery proof asserts:
 
@@ -70,4 +70,4 @@ The experiment phase will cross four dimensions: strategy, workload, service cap
 
 Reported outcomes will include duplicate, loss, orphan, inconsistency, completion, uncertainty, recovery latency, retry, database-write, storage-growth, and execution-overhead metrics with 95% confidence intervals. A result is complete only when every configured cell has its expected repetitions and can be reproduced from recorded inputs.
 
-Those comparative experiments are not implemented yet; current smoke tests validate mechanisms, not research conclusions.
+The email comparative suite is implemented. See [Benchmarks](benchmarks.md) for execution, resumption, metrics, and limitations. Smoke matrices validate the harness; the 100-repetition research run is explicit.

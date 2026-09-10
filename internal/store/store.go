@@ -11,6 +11,7 @@ type Store interface {
 	Ping(context.Context) error
 	SchemaReady(context.Context) error
 	Prepare(context.Context, domain.PrepareRequest) (domain.Operation, bool, error)
+	AuthorizeDispatch(context.Context, string, int64) (domain.Operation, error)
 	Confirm(context.Context, string, domain.ConfirmRequest) (domain.Operation, error)
 	GetOperation(context.Context, string) (domain.Operation, error)
 	ListOperations(context.Context, domain.OperationFilter) (domain.OperationPage, error)

@@ -54,6 +54,7 @@ func (s *Server) Handler() http.Handler {
 			r.Get("/operations/{operationID}", s.getOperation)
 			r.Get("/operations/{operationID}/events", s.listEvents)
 			r.Post("/operations/{operationID}/confirmations", s.confirm)
+			r.Post("/operations/{operationID}/dispatches", s.authorizeDispatch)
 			r.Post("/operations/{operationID}/attempts", s.beginRetry)
 		})
 		r.Group(func(r chi.Router) {
@@ -569,4 +570,28 @@ func writeJSON(w http.ResponseWriter, status int, value any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(value)
+}
+
+func (s *Server) authorizeDispatch(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "operationID")
+	if _, err := uuid.Parse(id); err != nil {
+		s.writeError(w, r, domain.NewError(domain.ErrorValidation, "invalid_operation_id", "operation_id must be a UUID"))
+		return
+	}
+	var payload struct {
+		ExpectedVersion int64 `json:"expected_version"`
+	}
+	if !decodeJSON(w, r, &payload) {
+		return
+	}
+	if payload.ExpectedVersion < 1 {
+		s.writeError(w, r, domain.NewError(domain.ErrorValidation, "invalid_dispatch", "expected_version is required"))
+		return
+	}
+	op, err := s.store.AuthorizeDispatch(r.Context(), id, payload.ExpectedVersion)
+	if err != nil {
+		s.writeError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, op)
 }

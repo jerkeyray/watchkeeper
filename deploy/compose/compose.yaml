@@ -107,6 +107,7 @@ services:
       WK_ADMIN_TOKEN: watchkeeper-admin-dev-token
       SIMULATOR_URL: http://simulator:8090
       SIM_AUTH_TOKEN: simulator-dev-token
+      SIM_ADMIN_TOKEN: simulator-admin-dev-token
     depends_on:
       api: {condition: service_healthy}
       simulator: {condition: service_healthy}

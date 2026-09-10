@@ -18,31 +18,22 @@ Watchkeeper is being built as a research prototype in increments. The ordering b
 - Email status verifier and coordinator classification for completed, absent, contradictory, unknown, and transient outcomes.
 - Lost-confirmation smoke proof demonstrating reconciliation without redispatch.
 
-## Next stages
+## Email benchmark implementation
 
-### 1. Complete service capability profiles
+- Durable single-send authorization, conservative migration of unresolved intents, safe restart/continuation, and explicit idempotency replay.
+- Receipt/status, indirect-unique, idempotency-only, and no-evidence email profiles.
+- Three-step workloads with independent blind-retry, idempotency-retry, and checkpoint baselines.
+- Real subprocess crashes at acknowledged barriers, delayed commits, duplicate delivery, lost responses, service/database interruptions, and coordinator crashes.
+- Isolated Compose setup; versioned seeded matrix configuration; retained executions and resume; independent ground-truth scoring; CSV/Markdown reports with confidence intervals.
 
-Implement durable receipt lookup, idempotency-key repeat/deduplication, indirect effect inspection, and a deliberately no-evidence adapter. Define precedence when multiple mechanisms disagree and prove that insufficient evidence ends in `Uncertain`.
+See [Email benchmarks](benchmarks.md) for the implemented fault model and measurement limits. Passing a smoke matrix is evidence about harness behavior, not a completed research evaluation.
 
-### 2. Add the remaining workloads
+## Next research stages
 
-Build calendar creation, inventory reservation, and externally visible record-transition simulators. Each simulator needs independent committed-effect ground truth, configurable capability profiles, status/inspection endpoints, and workload-specific optional compensation hooks. No generic automatic compensation semantics will be invented.
-
-### 3. Deterministic failure injection
-
-Add seeded barriers before intent persistence, after persistence, during dispatch, after external commit but before confirmation, and during recovery. Model lost acknowledgements, duplicate delivery, delayed commits, service unavailability, and database interruption. Persist scheduled, triggered, and released faults.
-
-### 4. Observability and research metrics
-
-Add OpenTelemetry traces and domain metrics for duplicates, losses, orphans, external-state inconsistency, completion, uncertainty, recovery latency, writes, storage, retries, and overhead. Correlate workflow, operation, attempt, experiment, and fault identifiers without exposing secrets.
-
-### 5. K3s and experiment automation
-
-Create binding K3s manifests for pod-level crash experiments while retaining Compose for development. Build a seeded matrix runner across blind retry, idempotency-key retry, checkpoint recovery, and Watchkeeper reconciliation; all workloads; all capability profiles; and all failure points.
-
-### 6. Evaluation and reproducibility
-
-Run 100 repetitions per configured cell by default, preserve raw run records, calculate rates with 95% confidence intervals, and produce complete comparative tables. Validate from a clean environment using pinned source, images, schema, configuration, and seeds.
+1. Execute the explicit 100-repetition email dataset from a pinned source/environment, assess interval widths, and write RQ1–RQ4 results and discussion.
+2. Add calendar creation, inventory reservation, and record-transition workloads with independent ground truth.
+3. Extend process-crash experiments to K3s pod and host failures.
+4. Add distributed traces and physical database/WAL measurements beyond the current committed application-row counts and relation-size deltas.
 
 ## Productionization path
 

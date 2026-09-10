@@ -33,7 +33,7 @@ func (p *Postgres) BeginRetry(ctx context.Context, operationID string, expectedV
 		return domain.Operation{}, domain.NewError(domain.ErrorConflict, "operation_version_conflict", "operation version does not match expected_version")
 	}
 	newVersion := operation.Version + 1
-	_, err = tx.Exec(ctx, `UPDATE operations SET state='prepared',attempt_count=attempt_count+1,version=$2,prepared_at=now(),resolved_at=NULL,next_reconcile_at=NULL,updated_at=now() WHERE id=$1`, operationID, newVersion)
+	_, err = tx.Exec(ctx, `UPDATE operations SET dispatch_authorized=false,state='prepared',attempt_count=attempt_count+1,version=$2,prepared_at=now(),resolved_at=NULL,next_reconcile_at=NULL,updated_at=now() WHERE id=$1`, operationID, newVersion)
 	if err != nil {
 		return domain.Operation{}, unavailable("begin retry", err)
 	}
@@ -101,12 +101,17 @@ func claimTokenHash(token string) string {
 }
 
 func (p *Postgres) ClaimRecovery(ctx context.Context, workerID string, limit int, leaseDuration, preparedGrace time.Duration) ([]domain.RecoveryClaim, error) {
+	return p.ClaimRecoveryForWorkflow(ctx, workerID, limit, leaseDuration, preparedGrace, "")
+}
+
+// ClaimRecoveryForWorkflow isolates a research execution from unfinished older trials.
+func (p *Postgres) ClaimRecoveryForWorkflow(ctx context.Context, workerID string, limit int, leaseDuration, preparedGrace time.Duration, workflowID string) ([]domain.RecoveryClaim, error) {
 	tx, err := p.pool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return nil, unavailable("begin claim transaction", err)
 	}
 	defer tx.Rollback(ctx)
-	rows, err := tx.Query(ctx, `SELECT id::text FROM operations WHERE ((state='prepared' AND (prepared_at <= now()-make_interval(secs=>$1) OR next_reconcile_at<=now())) OR (state='uncertain' AND next_reconcile_at<=now())) AND (next_reconcile_at IS NULL OR next_reconcile_at<=now()) AND (lease_expires_at IS NULL OR lease_expires_at<=now()) ORDER BY next_reconcile_at NULLS FIRST,prepared_at,id FOR UPDATE SKIP LOCKED LIMIT $2`, preparedGrace.Seconds(), limit)
+	rows, err := tx.Query(ctx, `SELECT id::text FROM operations WHERE workflow_id IN (SELECT id FROM workflows WHERE strategy='watchkeeper' AND ($3='' OR external_workflow_id=$3)) AND ((state='prepared' AND (prepared_at <= now()-make_interval(secs=>$1) OR next_reconcile_at<=now())) OR (state='uncertain' AND next_reconcile_at<=now())) AND (next_reconcile_at IS NULL OR next_reconcile_at<=now()) AND (lease_expires_at IS NULL OR lease_expires_at<=now()) ORDER BY next_reconcile_at NULLS FIRST,prepared_at,id FOR UPDATE SKIP LOCKED LIMIT $2`, preparedGrace.Seconds(), limit, workflowID)
 	if err != nil {
 		return nil, unavailable("select recovery work", err)
 	}
@@ -232,9 +237,13 @@ func (p *Postgres) SubmitRecoveryResult(ctx context.Context, operationID string,
 		reason = "effect_completed"
 		decision = "reconcile"
 		resolved = true
-	case result.Observation.Authoritative && result.Observation.Outcome == domain.OutcomeAbsent:
+	case !operation.DispatchAuthorized && result.Observation.Outcome != domain.OutcomeContradictory:
 		toState = domain.StateRetryable
-		reason = "effect_absent"
+		reason = "dispatch_not_authorized"
+		decision = "retry"
+	case operation.CapabilityProfile == "idempotency_only" && result.Observation.Mechanism == domain.MechanismIdempotentRepeat && result.Observation.Authoritative && result.Observation.Outcome == domain.OutcomeUnknown:
+		toState = domain.StateRetryable
+		reason = "idempotent_replay_guaranteed"
 		decision = "retry"
 	case result.Observation.Outcome == domain.OutcomeTransient && attemptNumber < 5:
 		delay := 250 * time.Millisecond * time.Duration(1<<(attemptNumber-1))

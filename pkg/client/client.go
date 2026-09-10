@@ -37,6 +37,7 @@ type Receipt struct {
 }
 
 type Operation struct {
+	DispatchAuthorized bool            `json:"dispatch_authorized"`
 	ID                 string          `json:"operation_id"`
 	WorkflowID         string          `json:"workflow_id"`
 	LogicalKey         string          `json:"logical_key"`
@@ -275,4 +276,11 @@ func (c *Client) do(ctx context.Context, method, path string, body, output any) 
 		}
 	}
 	return nil
+}
+
+// AuthorizeDispatch grants a single send. Never retry a lost success as permission to send.
+func (c *Client) AuthorizeDispatch(ctx context.Context, id string, version int64) (Operation, error) {
+	var op Operation
+	err := c.do(ctx, http.MethodPost, "/v1/operations/"+url.PathEscape(id)+"/dispatches", map[string]any{"expected_version": version}, &op)
+	return op, err
 }

@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_PASSWORD: benchmark-dev
+    ports:
+      - "127.0.0.1::5432"
+    volumes:
+      - benchmark-pg:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 2s
+      retries: 30
+  suite:
+    build:
+      context: ../..
+    command: ["/app/benchmark", "run", "-config", "/app/benchmarks/smoke.json", "-output", "/results/smoke"]
+    environment:
+      WK_DATABASE_URL: postgres://watchkeeper:benchmark-dev@postgres:5432/watchkeeper?sslmode=disable
+      SIM_DATABASE_URL: postgres://simulator:benchmark-dev@postgres:5432/simulator?sslmode=disable
+      BASELINE_DATABASE_URL: postgres://baseline:benchmark-dev@postgres:5432/baseline?sslmode=disable
+    volumes:
+      - ../../results:/results
+    depends_on:
+      postgres: {condition: service_healthy}
+volumes:
+  benchmark-pg:

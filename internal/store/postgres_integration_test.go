@@ -212,6 +212,10 @@ func TestUnknownRecoveryBecomesUncertainAndCanBeResolved(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	operation, err = store.AuthorizeDispatch(ctx, operation.ID, operation.Version)
+	if err != nil {
+		t.Fatal(err)
+	}
 	claims, err := store.ClaimRecovery(ctx, "coordinator", 1, 30*time.Second, 0)
 	if err != nil || len(claims) != 1 {
 		t.Fatalf("claims=%d err=%v", len(claims), err)

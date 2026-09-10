@@ -28,6 +28,9 @@ func (f *fakeStore) Prepare(_ context.Context, r domain.PrepareRequest) (domain.
 	f.prepareRequest = r
 	return f.prepared, f.created, nil
 }
+func (f *fakeStore) AuthorizeDispatch(context.Context, string, int64) (domain.Operation, error) {
+	return f.prepared, nil
+}
 func (f *fakeStore) Confirm(context.Context, string, domain.ConfirmRequest) (domain.Operation, error) {
 	return f.prepared, nil
 }

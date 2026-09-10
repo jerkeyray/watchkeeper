@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -28,7 +29,42 @@ func (v EmailVerifier) Verify(ctx context.Context, operation client.Operation) (
 	if httpClient == nil {
 		httpClient = &http.Client{Timeout: 5 * time.Second}
 	}
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, strings.TrimRight(v.BaseURL, "/")+"/email/operations/"+operation.ID, nil)
+	if operation.CapabilityProfile == "none" {
+		return client.Observation{Mechanism: "none", Outcome: "unknown", Evidence: json.RawMessage(`{}`)}, nil
+	}
+	if operation.CapabilityProfile == "idempotency_only" {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, strings.TrimRight(v.BaseURL, "/")+"/email/capabilities", nil)
+		if err != nil {
+			return client.Observation{}, err
+		}
+		req.Header.Set("Authorization", "Bearer "+v.Token)
+		res, err := httpClient.Do(req)
+		if err != nil {
+			return client.Observation{Mechanism: "idempotent_repeat", Outcome: "transient_error", Evidence: json.RawMessage(`{}`)}, nil
+		}
+		defer res.Body.Close()
+		var capability struct {
+			Profile    string `json:"profile"`
+			Guaranteed bool   `json:"durable_key_payload_binding"`
+		}
+		if res.StatusCode != 200 || json.NewDecoder(res.Body).Decode(&capability) != nil {
+			return client.Observation{Mechanism: "idempotent_repeat", Outcome: "transient_error", Evidence: json.RawMessage(`{}`)}, nil
+		}
+		return client.Observation{Mechanism: "idempotent_repeat", Outcome: "unknown", Authoritative: capability.Profile == "idempotency_only" && capability.Guaranteed, Evidence: json.RawMessage(`{"contract":"durable_key_payload_binding"}`)}, nil
+	}
+	endpoint := strings.TrimRight(v.BaseURL, "/") + "/email/operations/" + operation.ID
+	if operation.CapabilityProfile == "indirect_unique" {
+		var expected map[string]string
+		if err := json.Unmarshal(operation.ExpectedEffect, &expected); err != nil {
+			return client.Observation{}, err
+		}
+		values := url.Values{}
+		for _, key := range []string{"recipient", "template", "logical_message_key"} {
+			values.Set(key, expected[key])
+		}
+		endpoint = strings.TrimRight(v.BaseURL, "/") + "/email/inspect?" + values.Encode()
+	}
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return client.Observation{}, err
 	}
@@ -46,31 +82,56 @@ func (v EmailVerifier) Verify(ctx context.Context, operation client.Operation) (
 		return client.Observation{}, fmt.Errorf("status lookup returned %d: %s", response.StatusCode, body)
 	}
 	var status struct {
-		CommittedCount int  `json:"committed_count"`
-		Authoritative  bool `json:"authoritative"`
+		OperationID    string `json:"operation_id"`
+		CommittedCount int    `json:"committed_count"`
+		Authoritative  bool   `json:"authoritative"`
 		Latest         *struct {
-			ReceiptID string `json:"receipt_id"`
+			ReceiptID         string `json:"receipt_id"`
+			OperationID       string `json:"operation_id"`
+			Recipient         string `json:"recipient"`
+			Template          string `json:"template"`
+			LogicalMessageKey string `json:"logical_message_key"`
 		} `json:"latest"`
 	}
 	if err := json.NewDecoder(response.Body).Decode(&status); err != nil {
 		return client.Observation{}, err
 	}
 	evidence, _ := json.Marshal(status)
-	outcome := "absent"
-	external := ""
-	if status.CommittedCount > 0 {
-		outcome = "completed"
-		if status.Latest != nil {
-			external = status.Latest.ReceiptID
-		}
+	observation := client.Observation{Mechanism: "status_lookup", Outcome: "unknown", Evidence: evidence}
+	if operation.CapabilityProfile == "indirect_unique" {
+		observation.Mechanism = "indirect_lookup"
 	}
 	if status.CommittedCount > 1 {
-		outcome = "contradictory"
+		observation.Outcome = "contradictory"
+		return observation, nil
 	}
-	return client.Observation{Mechanism: "status_lookup", Outcome: outcome, Authoritative: status.Authoritative, ExternalReference: external, Evidence: evidence}, nil
+	if status.CommittedCount == 1 {
+		var expected struct {
+			Recipient         string `json:"recipient"`
+			Template          string `json:"template"`
+			LogicalMessageKey string `json:"logical_message_key"`
+		}
+		err := json.Unmarshal(operation.ExpectedEffect, &expected)
+		valid := err == nil && expected.Recipient != "" && expected.Template != "" && expected.LogicalMessageKey != "" && status.Latest != nil
+		if valid {
+			valid = status.Latest.ReceiptID != "" && status.Latest.Recipient == expected.Recipient && status.Latest.Template == expected.Template && status.Latest.LogicalMessageKey == expected.LogicalMessageKey
+		}
+		if valid && operation.CapabilityProfile != "indirect_unique" {
+			valid = status.OperationID == operation.ID && status.Latest.OperationID == operation.ID
+		}
+		if !valid {
+			observation.Outcome = "contradictory"
+			return observation, nil
+		}
+		observation.Outcome = "completed"
+		observation.Authoritative = status.Authoritative
+		observation.ExternalReference = status.Latest.ReceiptID
+	}
+	return observation, nil
 }
 
 type Coordinator struct {
+	Hook          func(context.Context, string, client.Operation) error
 	Client        *client.Client
 	Verifier      Verifier
 	WorkerID      string
@@ -90,10 +151,20 @@ func (c *Coordinator) RunOnce(ctx context.Context) (int, error) {
 		if verifyErr != nil {
 			observation = client.Observation{Mechanism: "status_lookup", Outcome: "transient_error", Evidence: json.RawMessage(`{}`)}
 		}
+		if c.Hook != nil {
+			if err := c.Hook(ctx, "coordinator_before_result", claim.Operation); err != nil {
+				return processed, err
+			}
+		}
 		operation, err := c.Client.SubmitRecoveryResult(ctx, claim.Operation.ID, claim, observation)
 		if err != nil {
 			c.Logger.Error("submit recovery result", "operation_id", claim.Operation.ID, "error", err)
 			continue
+		}
+		if c.Hook != nil {
+			if err := c.Hook(ctx, "coordinator_after_result", operation); err != nil {
+				return processed, err
+			}
 		}
 		processed++
 		c.Logger.Info("operation reconciled", "operation_id", operation.ID, "state", operation.State, "outcome", observation.Outcome)

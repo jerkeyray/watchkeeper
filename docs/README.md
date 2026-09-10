@@ -26,5 +26,7 @@ The [OpenAPI document](../api/openapi.yaml) is the machine-readable HTTP contrac
 
 ## Current scope
 
-The runnable system supports the email workload with an authoritative `receipt_status` capability. It proves normal confirmation and recovery after an external commit with a lost acknowledgement. Calendar, inventory, record transitions, other evidence profiles, deterministic fault injection, K3s experiments, and comparative analysis remain planned.
+The runnable system supports the email workload with an authoritative `receipt_status` capability. It proves normal confirmation and recovery after an external commit with a lost acknowledgement. The email benchmark now adds four evidence profiles, four strategies, deterministic process-crash fault injection, and comparative reports. Calendar, inventory, record transitions, K3s experiments, and the full research analysis remain future work.
 
+
+- [Email benchmarks](benchmarks.md): strategy matrix, deterministic fault barriers, raw evidence, resumption, and statistical reports.

@@ -25,6 +25,7 @@ const (
 )
 
 type Operation struct {
+	DispatchAuthorized bool            `json:"dispatch_authorized"`
 	ID                 string          `json:"operation_id"`
 	WorkflowID         string          `json:"workflow_id"`
 	LogicalKey         string          `json:"logical_key"`

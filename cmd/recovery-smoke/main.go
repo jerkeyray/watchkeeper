@@ -33,6 +33,10 @@ func main() {
 	if err != nil {
 		fatal("prepare: %v", err)
 	}
+	operation, err = public.AuthorizeDispatch(ctx, operation.ID, operation.Version)
+	if err != nil {
+		fatal("authorize: %v", err)
+	}
 	if err := dispatch(ctx, simURL, simToken, operation.ID, payload); err != nil {
 		fatal("dispatch: %v", err)
 	}
@@ -59,10 +63,24 @@ func main() {
 	if err != nil {
 		fatal("events: %v", err)
 	}
-	if len(events.Items) != 4 || events.Items[0].EventType != "intent_prepared" || events.Items[1].EventType != "reconciliation_requested" || events.Items[2].EventType != "recovery_claimed" || events.Items[3].EventType != "recovery_result" {
+	if len(events.Items) != 5 || events.Items[0].EventType != "intent_prepared" || events.Items[1].EventType != "dispatch_authorized" || events.Items[2].EventType != "reconciliation_requested" || events.Items[3].EventType != "recovery_claimed" || events.Items[4].EventType != "recovery_result" {
 		fatal("unexpected audit events: %+v", events.Items)
 	}
-	json.NewEncoder(os.Stdout).Encode(map[string]any{"workflow_id": workflowID, "operation_id": operation.ID, "state": current.State, "audit_events": len(events.Items), "redispatched": false, "validated": true})
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, simURL+"/admin/email/operations/"+operation.ID, nil)
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("SIM_ADMIN_TOKEN"))
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fatal("ground truth: %v", err)
+	}
+	defer resp.Body.Close()
+	var truth struct {
+		Count      int `json:"committed_count"`
+		Dispatches int `json:"dispatch_count"`
+	}
+	if resp.StatusCode != 200 || json.NewDecoder(resp.Body).Decode(&truth) != nil || truth.Count != 1 || truth.Dispatches != 1 {
+		fatal("ground truth must contain exactly one effect")
+	}
+	json.NewEncoder(os.Stdout).Encode(map[string]any{"workflow_id": workflowID, "operation_id": operation.ID, "state": current.State, "audit_events": len(events.Items), "ground_truth_count": truth.Count, "dispatch_count": truth.Dispatches, "redispatched": truth.Dispatches > 1, "validated": true})
 }
 func dispatch(ctx context.Context, baseURL, token, operationID string, payload []byte) error {
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL+"/email/messages", bytes.NewReader(payload))

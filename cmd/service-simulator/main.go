@@ -31,7 +31,9 @@ func main() {
 		os.Exit(1)
 	}
 	defer pool.Close()
-	server := &http.Server{Addr: addr, Handler: simulator.NewServer(simulator.NewPostgresEmailStore(pool), token, adminToken, logger).Handler(), ReadHeaderTimeout: 5 * time.Second}
+	sim := simulator.NewServer(simulator.NewPostgresEmailStore(pool), token, adminToken, logger)
+	sim.Profile = env("SIM_CAPABILITY_PROFILE", "receipt_status")
+	server := &http.Server{Addr: addr, Handler: sim.Handler(), ReadHeaderTimeout: 5 * time.Second}
 	go func() {
 		<-ctx.Done()
 		shutdown, done := context.WithTimeout(context.Background(), 10*time.Second)
