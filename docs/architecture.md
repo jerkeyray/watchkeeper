@@ -2,18 +2,18 @@
 
 ## Components and ownership
 
-```text
-workflow worker ---- prepare / confirm ----> Watchkeeper API ----> Watchkeeper DB
-       |                                      ^       ^
-       | dispatch stable operation ID         |       | claim / result
-       v                                      |       |
-email simulator <---- status verifier --------+   recovery coordinator
-       |
-       v
-simulator effect DB
+```mermaid
+flowchart TD
+    W["Workflow worker"] -->|"prepare, dispatch authorization, confirm"| A["Watchkeeper API"]
+    A --> D["Operation knowledge and audit history"]
+    W -->|"external dispatch"| S["Email simulator"]
+    C["Coordinator"] -->|"claim and result"| A
+    C --> V["Evidence verifier"]
+    V -->|"profile-gated service queries"| S
+    S --> E["Independent effect ledger"]
 ```
 
-- **Workflow worker:** prepares intent, dispatches with the returned operation ID, and confirms the service receipt.
+- **Workflow worker:** prepares intent, acquires single-send authorization, dispatches with the returned operation ID, and confirms the service receipt.
 - **Watchkeeper API:** validates HTTP input, authenticates callers, and delegates to store interfaces. Handlers do not execute SQL.
 - **Recovery coordinator:** claims unresolved operations, invokes a service-specific verifier, and submits observations.
 - **Email simulator:** commits an email effect and exposes status by operation ID. It behaves as an external system.
@@ -31,6 +31,10 @@ Watchkeeper never reads simulator ledger tables directly. Recovery must use the 
 | `cmd/recovery-coordinator` | Polling recovery process. |
 | `cmd/service-simulator` | Email simulator HTTP process. |
 | `cmd/recovery-smoke` | Lost-confirmation proof and assertions. |
+| `cmd/benchmark` | Comparative process-crash matrix and retained scoring. |
+| `cmd/demo` | Terminal process-crash demonstration. |
+| `cmd/watchkeeper-demo` | Local browser demonstration with deliberate lost confirmation. |
+| `cmd/healthcheck` | Container readiness command. |
 | `cmd/migrate` | Goose migration runner. |
 | `internal/domain` | States, transitions, fingerprints, types, and typed errors. |
 | `internal/api` | Chi routes, middleware, validation, serialization, and metrics. |
@@ -59,6 +63,8 @@ The baseline migration creates the full research schema so later phases do not n
 
 Preparation creates or finds the workflow, inserts the operation, and appends the prepared event atomically. The unique workflow/logical-key constraint arbitrates concurrent identical prepares; the fingerprint distinguishes safe replay from conflict.
 
+Dispatch authorization locks the operation, verifies the expected version, prior authorization, and absence of a recovery lease, then grants one send and appends an audit event atomically. A lost authorization response is ambiguous and does not permit inference of send ownership from a later read.
+
 Confirmation locks the operation, checks the expected version and legal transition, inserts the receipt, updates state and timestamps, and appends the audit event in one transaction. Any failure rolls back all three changes.
 
 A recovery result validates the live lease token, attempt ID, expected version, observation, and permitted state transition in one transaction. It then persists the observation and decision, completes the attempt, updates the operation, clears the lease, and appends the event atomically.
@@ -77,3 +83,9 @@ Containers run as non-root processes. Watchkeeper and simulator databases have d
 
 This is an isolated research boundary, not internet-facing hardening. Productionization needs workload identity, secret management, transport security, authorization policy, audit export, backup/restore procedures, and multi-tenant isolation.
 
+
+## Stack and implementation status
+
+The implementation uses Go 1.27.0, Chi v5, OpenAPI 3.1.0, PostgreSQL 17, pgx v5, Goose v3, slog, Prometheus, and Docker Compose. Exact module versions are in [`go.mod`](../go.mod). The browser console embeds plain HTML, CSS, and JavaScript in its Go executable.
+
+The coordinator orchestrates verification; the authoritative recovery decision executes in the API storage transaction in `internal/store/recovery.go`. All four email evidence profiles are implemented. [The final report](final-project-report.md) contains the full component and technology tables, protocol details, evaluation, and limitations.

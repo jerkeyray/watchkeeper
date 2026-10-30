@@ -1,0 +1,355 @@
+{
+  "result": {
+    "execution_id": "82b79695-14c8-43e6-868e-ea47280cb8f0",
+    "cell": "watchkeeper/receipt_status/after_commit",
+    "strategy": "watchkeeper",
+    "profile": "receipt_status",
+    "scenario": "after_commit",
+    "repetition": 1,
+    "seed": 1,
+    "status": "completed",
+    "steps": [
+      {
+        "key": "step-1",
+        "attempted": true,
+        "acknowledged": true,
+        "uncertain": false,
+        "effects": 1,
+        "deadline_effects": 1
+      },
+      {
+        "key": "step-2",
+        "attempted": true,
+        "acknowledged": true,
+        "uncertain": false,
+        "effects": 1,
+        "deadline_effects": 1
+      },
+      {
+        "key": "step-3",
+        "attempted": true,
+        "acknowledged": true,
+        "uncertain": false,
+        "effects": 1,
+        "deadline_effects": 1
+      }
+    ],
+    "started_at": "2026-09-10T19:07:41.136221924Z",
+    "duration_ms": 645.448209,
+    "recovery_ms": 634.733792,
+    "detection_ms": 520.097792,
+    "resolution_ms": 114.635958,
+    "completed": true,
+    "censored": false,
+    "duplicate": false,
+    "excess_effects": 0,
+    "missing_at_deadline": 0,
+    "unattempted": 0,
+    "uncertain_missing": 0,
+    "terminally_abandoned": 0,
+    "unacknowledged_effects": 0,
+    "false_completion": 0,
+    "uncertain": false,
+    "dispatches": 3,
+    "retries": 0,
+    "verifications": 1,
+    "application_row_writes": 33,
+    "storage_growth_bytes": 32768,
+    "fault_triggered": true
+  },
+  "operations": [
+    {
+      "id": "01a08cb7-f4d6-71e5-8400-6d42e8f6d0b2",
+      "state": "confirmed",
+      "action": "send",
+      "version": 3,
+      "created_at": "2026-09-10T19:07:41.141051+00:00",
+      "updated_at": "2026-09-10T19:07:41.1454+00:00",
+      "lease_owner": null,
+      "logical_key": "step-1",
+      "prepared_at": "2026-09-10T19:07:41.141051+00:00",
+      "resolved_at": "2026-09-10T19:07:41.1454+00:00",
+      "workflow_id": "01a08cb7-f4d5-716a-a441-366bff726c6c",
+      "confirmed_at": "2026-09-10T19:07:41.1454+00:00",
+      "attempt_count": 1,
+      "trace_context": {},
+      "target_service": "email",
+      "expected_effect": {
+        "template": "step-1",
+        "recipient": "researcher@example.invalid",
+        "logical_message_key": "82b79695-14c8-43e6-868e-ea47280cb8f0/step-1"
+      },
+      "lease_expires_at": null,
+      "next_reconcile_at": null,
+      "capability_profile": "receipt_status",
+      "dispatch_authorized": true,
+      "request_fingerprint": "17ee11cae1c507845efff29528a4bc5555d0e78dadb2e352d7de5d668fae6e91"
+    },
+    {
+      "id": "01a08cb7-f4da-7ec3-9ea2-5e4cd96f6c98",
+      "state": "reconciled",
+      "action": "send",
+      "version": 4,
+      "created_at": "2026-09-10T19:07:41.146834+00:00",
+      "updated_at": "2026-09-10T19:07:41.670926+00:00",
+      "lease_owner": null,
+      "logical_key": "step-2",
+      "prepared_at": "2026-09-10T19:07:41.146834+00:00",
+      "resolved_at": "2026-09-10T19:07:41.670926+00:00",
+      "workflow_id": "01a08cb7-f4d5-716a-a441-366bff726c6c",
+      "confirmed_at": null,
+      "attempt_count": 1,
+      "trace_context": {},
+      "target_service": "email",
+      "expected_effect": {
+        "template": "step-2",
+        "recipient": "researcher@example.invalid",
+        "logical_message_key": "82b79695-14c8-43e6-868e-ea47280cb8f0/step-2"
+      },
+      "lease_expires_at": null,
+      "next_reconcile_at": null,
+      "capability_profile": "receipt_status",
+      "dispatch_authorized": true,
+      "request_fingerprint": "b719673a45d74a73b8ab449bb9be3408a6cbf938ad9c2ff5dcf4ea603b5373ee"
+    },
+    {
+      "id": "01a08cb7-f74e-7ccb-85b1-23282afb1f1e",
+      "state": "confirmed",
+      "action": "send",
+      "version": 3,
+      "created_at": "2026-09-10T19:07:41.774298+00:00",
+      "updated_at": "2026-09-10T19:07:41.780632+00:00",
+      "lease_owner": null,
+      "logical_key": "step-3",
+      "prepared_at": "2026-09-10T19:07:41.774298+00:00",
+      "resolved_at": "2026-09-10T19:07:41.780632+00:00",
+      "workflow_id": "01a08cb7-f4d5-716a-a441-366bff726c6c",
+      "confirmed_at": "2026-09-10T19:07:41.780632+00:00",
+      "attempt_count": 1,
+      "trace_context": {},
+      "target_service": "email",
+      "expected_effect": {
+        "template": "step-3",
+        "recipient": "researcher@example.invalid",
+        "logical_message_key": "82b79695-14c8-43e6-868e-ea47280cb8f0/step-3"
+      },
+      "lease_expires_at": null,
+      "next_reconcile_at": null,
+      "capability_profile": "receipt_status",
+      "dispatch_authorized": true,
+      "request_fingerprint": "b26dff7bf4438c82f5592fe9fdcfdf026668442d6c42a7cc6a4e681e980d6de2"
+    }
+  ],
+  "observations": [
+    {
+      "id": "01a08cb7-f6e7-7e16-8280-3dbc1d7350d7",
+      "outcome": "completed",
+      "evidence": {
+        "latest": {
+          "template": "step-2",
+          "recipient": "researcher@example.invalid",
+          "receipt_id": "01a08cb7-f4dc-7587-835c-9969a570260f",
+          "operation_id": "01a08cb7-f4da-7ec3-9ea2-5e4cd96f6c98",
+          "logical_message_key": "82b79695-14c8-43e6-868e-ea47280cb8f0/step-2"
+        },
+        "operation_id": "01a08cb7-f4da-7ec3-9ea2-5e4cd96f6c98",
+        "authoritative": true,
+        "committed_count": 1
+      },
+      "mechanism": "status_lookup",
+      "observed_at": "2026-09-10T19:07:41.670926+00:00",
+      "authoritative": true,
+      "external_reference": "01a08cb7-f4dc-7587-835c-9969a570260f",
+      "reconciliation_attempt_id": "01a08cb7-f6df-73ea-a43c-e09f0c17685d"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "01a08cb7-f6e9-7a08-a8d0-d38f17337bab",
+      "actor": "recovery-coordinator",
+      "source": "coordinator",
+      "decision": "reconcile",
+      "to_state": "reconciled",
+      "created_at": "2026-09-10T19:07:41.670926+00:00",
+      "from_state": "prepared",
+      "reason_code": "effect_completed",
+      "operation_id": "01a08cb7-f4da-7ec3-9ea2-5e4cd96f6c98",
+      "operation_version": 4,
+      "evidence_references": [
+        "01a08cb7-f6e7-7e16-8280-3dbc1d7350d7"
+      ],
+      "reconciliation_attempt_id": "01a08cb7-f6df-73ea-a43c-e09f0c17685d"
+    }
+  ],
+  "audit": [
+    {
+      "id": 38,
+      "actor": "watchkeeper-api",
+      "source": "api",
+      "details": {},
+      "to_state": "prepared",
+      "created_at": "2026-09-10T19:07:41.141051+00:00",
+      "event_type": "intent_prepared",
+      "from_state": null,
+      "reason_code": "intent_persisted",
+      "operation_id": "01a08cb7-f4d6-71e5-8400-6d42e8f6d0b2",
+      "operation_version": 1
+    },
+    {
+      "id": 39,
+      "actor": "workflow-worker",
+      "source": "worker",
+      "details": {},
+      "to_state": "prepared",
+      "created_at": "2026-09-10T19:07:41.143846+00:00",
+      "event_type": "dispatch_authorized",
+      "from_state": "prepared",
+      "reason_code": "single_send_authorized",
+      "operation_id": "01a08cb7-f4d6-71e5-8400-6d42e8f6d0b2",
+      "operation_version": 2
+    },
+    {
+      "id": 40,
+      "actor": "watchkeeper-api",
+      "source": "api",
+      "details": {
+        "receipt_id": "01a08cb7-f4d9-7aa2-a941-849d1e09174c"
+      },
+      "to_state": "confirmed",
+      "created_at": "2026-09-10T19:07:41.1454+00:00",
+      "event_type": "receipt_confirmed",
+      "from_state": "prepared",
+      "reason_code": "receipt_persisted",
+      "operation_id": "01a08cb7-f4d6-71e5-8400-6d42e8f6d0b2",
+      "operation_version": 3
+    },
+    {
+      "id": 41,
+      "actor": "watchkeeper-api",
+      "source": "api",
+      "details": {},
+      "to_state": "prepared",
+      "created_at": "2026-09-10T19:07:41.146834+00:00",
+      "event_type": "intent_prepared",
+      "from_state": null,
+      "reason_code": "intent_persisted",
+      "operation_id": "01a08cb7-f4da-7ec3-9ea2-5e4cd96f6c98",
+      "operation_version": 1
+    },
+    {
+      "id": 42,
+      "actor": "workflow-worker",
+      "source": "worker",
+      "details": {},
+      "to_state": "prepared",
+      "created_at": "2026-09-10T19:07:41.147649+00:00",
+      "event_type": "dispatch_authorized",
+      "from_state": "prepared",
+      "reason_code": "single_send_authorized",
+      "operation_id": "01a08cb7-f4da-7ec3-9ea2-5e4cd96f6c98",
+      "operation_version": 2
+    },
+    {
+      "id": 43,
+      "actor": "be83ae86-8b4f-49fc-b67e-9c153f138d7c",
+      "source": "coordinator",
+      "details": {
+        "attempt_id": "01a08cb7-f6df-73ea-a43c-e09f0c17685d",
+        "lease_expires_at": "2026-09-10T19:07:46.662228+00:00"
+      },
+      "to_state": "prepared",
+      "created_at": "2026-09-10T19:07:41.662228+00:00",
+      "event_type": "recovery_claimed",
+      "from_state": "prepared",
+      "reason_code": "lease_acquired",
+      "operation_id": "01a08cb7-f4da-7ec3-9ea2-5e4cd96f6c98",
+      "operation_version": 3
+    },
+    {
+      "id": 44,
+      "actor": "recovery-coordinator",
+      "source": "coordinator",
+      "details": {
+        "attempt_id": "01a08cb7-f6df-73ea-a43c-e09f0c17685d",
+        "observation_id": "01a08cb7-f6e7-7e16-8280-3dbc1d7350d7"
+      },
+      "to_state": "reconciled",
+      "created_at": "2026-09-10T19:07:41.670926+00:00",
+      "event_type": "recovery_result",
+      "from_state": "prepared",
+      "reason_code": "effect_completed",
+      "operation_id": "01a08cb7-f4da-7ec3-9ea2-5e4cd96f6c98",
+      "operation_version": 4
+    },
+    {
+      "id": 45,
+      "actor": "watchkeeper-api",
+      "source": "api",
+      "details": {},
+      "to_state": "prepared",
+      "created_at": "2026-09-10T19:07:41.774298+00:00",
+      "event_type": "intent_prepared",
+      "from_state": null,
+      "reason_code": "intent_persisted",
+      "operation_id": "01a08cb7-f74e-7ccb-85b1-23282afb1f1e",
+      "operation_version": 1
+    },
+    {
+      "id": 46,
+      "actor": "workflow-worker",
+      "source": "worker",
+      "details": {},
+      "to_state": "prepared",
+      "created_at": "2026-09-10T19:07:41.777217+00:00",
+      "event_type": "dispatch_authorized",
+      "from_state": "prepared",
+      "reason_code": "single_send_authorized",
+      "operation_id": "01a08cb7-f74e-7ccb-85b1-23282afb1f1e",
+      "operation_version": 2
+    },
+    {
+      "id": 47,
+      "actor": "watchkeeper-api",
+      "source": "api",
+      "details": {
+        "receipt_id": "01a08cb7-f755-7094-99b0-4f3688f1860e"
+      },
+      "to_state": "confirmed",
+      "created_at": "2026-09-10T19:07:41.780632+00:00",
+      "event_type": "receipt_confirmed",
+      "from_state": "prepared",
+      "reason_code": "receipt_persisted",
+      "operation_id": "01a08cb7-f74e-7ccb-85b1-23282afb1f1e",
+      "operation_version": 3
+    }
+  ],
+  "ledger": [
+    {
+      "id": "01a08cb7-f4d8-7d84-94e8-0559a916d854",
+      "template": "step-1",
+      "recipient": "researcher@example.invalid",
+      "committed_at": "2026-09-10T19:07:41.144904+00:00",
+      "operation_id": "01a08cb7-f4d6-71e5-8400-6d42e8f6d0b2",
+      "experiment_run_id": "82b79695-14c8-43e6-868e-ea47280cb8f0",
+      "logical_message_key": "82b79695-14c8-43e6-868e-ea47280cb8f0/step-1"
+    },
+    {
+      "id": "01a08cb7-f4dc-7587-835c-9969a570260f",
+      "template": "step-2",
+      "recipient": "researcher@example.invalid",
+      "committed_at": "2026-09-10T19:07:41.148386+00:00",
+      "operation_id": "01a08cb7-f4da-7ec3-9ea2-5e4cd96f6c98",
+      "experiment_run_id": "82b79695-14c8-43e6-868e-ea47280cb8f0",
+      "logical_message_key": "82b79695-14c8-43e6-868e-ea47280cb8f0/step-2"
+    },
+    {
+      "id": "01a08cb7-f753-74cf-8bd0-01207ad277fb",
+      "template": "step-3",
+      "recipient": "researcher@example.invalid",
+      "committed_at": "2026-09-10T19:07:41.779372+00:00",
+      "operation_id": "01a08cb7-f74e-7ccb-85b1-23282afb1f1e",
+      "experiment_run_id": "82b79695-14c8-43e6-868e-ea47280cb8f0",
+      "logical_message_key": "82b79695-14c8-43e6-868e-ea47280cb8f0/step-3"
+    }
+  ]
+}

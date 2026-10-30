@@ -1,0 +1,12 @@
+{
+  "research-email": {
+    "raw_sha256": "83e8ebd7a75c61c6ce83b90b1cacbf5b555812cd2ecf0b7f074b473ad33a3c37",
+    "raw_bytes": 20951247,
+    "gzip_sha256": "0fd738773f5992c550c4ce78bd805d00ebce2291be21d9c2050d2ac0fdcd1a5d"
+  },
+  "storage-overhead": {
+    "raw_sha256": "0d4ec146e41665f76d35cfe8cf9200184a0ed38b646adc005cf51a76b75cf92b",
+    "raw_bytes": 1461942,
+    "gzip_sha256": "c9c2d0393f4637d4116b8f38051538bc3ca2989be448fa9a68d354a8a53e9710"
+  }
+}

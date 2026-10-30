@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="491.27559055118115" height="249" preserveAspectRatio="xMinYMin meet" viewBox="0 0 491 249" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="491.27559055118115" height="249"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-249)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="175" width="125" height="53" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="26.243499999999997" y="204.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,409) scale(1,-1)">Workflow worker</text>
+			<text x="24.731499999999997" y="192.5" style="font-family: Helvetica; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,385) scale(1,-1)">prepare / authorize</text>
+			<rect x="179" y="175" width="137" height="53" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="216.4905" y="204.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,409) scale(1,-1)">API and policy</text>
+			<text x="214.2405" y="192.5" style="font-family: Helvetica; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,385) scale(1,-1)">atomic decisions</text>
+			<rect x="368" y="175" width="123" height="53" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="395.993" y="204.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,409) scale(1,-1)">Operation store</text>
+			<text x="403.60699999999997" y="192.5" style="font-family: Helvetica; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,385) scale(1,-1)">intent + audit</text>
+			<path d="M 125,202 L 179,202 Z" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="179 202, 174.4978 204.1748, 174.4978 199.8252" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(20%,37%,52%); fill-rule: evenodd;"/>
+			<path d="M 316,202 L 368,202 Z" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="368 202, 363.4978 204.1748, 363.4978 199.8252" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(20%,37%,52%); fill-rule: evenodd;"/>
+			<rect x="179" y="72" width="137" height="53" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="221.751" y="101.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,203) scale(1,-1)">Coordinator</text>
+			<text x="221.121" y="89.5" style="font-family: Helvetica; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,179) scale(1,-1)">claim + verify</text>
+			<path d="M 247,125 L 247,175 Z" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="247 175, 244.8252 170.4978, 249.1748 170.4978" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(20%,37%,52%); fill-rule: evenodd;"/>
+			<rect x="0" y="72" width="125" height="53" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="33.7315" y="101.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,203) scale(1,-1)">Email service</text>
+			<text x="23.224000000000004" y="89.5" style="font-family: Helvetica; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,179) scale(1,-1)">independent effects</text>
+			<path d="M 61,175 L 61,125 Z" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="61 125, 63.17483 129.5022, 58.82517 129.5022" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(20%,37%,52%); fill-rule: evenodd;"/>
+			<text x="3" y="145" style="font-family: Helvetica; font-size: 8.5px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,290) scale(1,-1)">dispatch ID</text>
+			<path d="M 179,99 L 125,99 Z" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="125 99, 129.5022 96.82517, 129.5022 101.1748" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(20%,37%,52%); fill-rule: evenodd;"/>
+			<text x="135" y="113" style="font-family: Helvetica; font-size: 8px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,226) scale(1,-1)">verify</text>
+			<rect x="368" y="72" width="123" height="53" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(92%,96%,94%); fill-rule: evenodd;"/>
+			<text x="402.2435" y="101.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,203) scale(1,-1)">Effect ledger</text>
+			<text x="395.7365" y="89.5" style="font-family: Helvetica; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,179) scale(1,-1)">evaluator access</text>
+			<path d="M 61,72 L 61,45 Z" style="stroke: rgb(15%,45%,40%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 61,45 L 429,45 Z" style="stroke: rgb(15%,45%,40%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 429,45 L 429,72 Z" style="stroke: rgb(15%,45%,40%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="429 72, 426.8252 67.49776, 431.1748 67.49776" style="stroke: rgb(15%,45%,40%); stroke-linecap: butt; stroke-width: 1; fill: rgb(15%,45%,40%); fill-rule: evenodd;"/>
+			<text x="0" y="13" style="font-family: Helvetica; font-size: 9.2px;fill: rgb(33%,39%,45%); stroke:none;" transform="translate(0,26) scale(1,-1)">Workers and verifiers use the service interface, not ground-truth tables.</text>
+		</g>
+	</g>
+</svg>

@@ -64,15 +64,15 @@ func Summarize(output string) error {
 	}
 	defer f.Close()
 	w := csv.NewWriter(f)
-	header := []string{"cell", "valid_n", "invalid_n", "failed_n", "unsupported_n", "censored_n", "duplicate_n", "duplicate_ci_low", "duplicate_ci_high", "completion_n", "completion_ci_low", "completion_ci_high", "uncertain_n", "uncertain_ci_low", "uncertain_ci_high", "missing_workflow_n", "missing_ci_low", "missing_ci_high", "orphan_workflow_n", "orphan_ci_low", "orphan_ci_high", "false_completion_n", "median_ms", "median_ci_low", "median_ci_high", "p95_ms", "p95_ci_low", "p95_ci_high", "recovery_median_ms", "recovery_ci_low", "recovery_ci_high", "mean_dispatches", "mean_retries", "mean_verifications", "mean_application_row_writes", "aggregate_storage_growth_bytes", "median_vs_no_failure_ratio", "excess_effects", "unattempted_steps", "uncertain_missing_steps", "terminally_abandoned_steps"}
+	header := []string{"cell", "valid_n", "invalid_n", "failed_n", "unsupported_n", "censored_n", "duplicate_n", "duplicate_ci_low", "duplicate_ci_high", "completion_n", "completion_ci_low", "completion_ci_high", "uncertain_n", "uncertain_ci_low", "uncertain_ci_high", "missing_workflow_n", "missing_ci_low", "missing_ci_high", "orphan_workflow_n", "orphan_ci_low", "orphan_ci_high", "false_completion_n", "median_ms", "median_ci_low", "median_ci_high", "p95_ms", "p95_ci_low", "p95_ci_high", "recovery_median_ms", "recovery_ci_low", "recovery_ci_high", "detection_median_ms", "detection_ci_low", "detection_ci_high", "resolution_median_ms", "resolution_ci_low", "resolution_ci_high", "mean_dispatches", "mean_retries", "mean_verifications", "mean_application_row_writes", "aggregate_storage_growth_bytes", "median_vs_no_failure_ratio", "excess_effects", "unattempted_steps", "uncertain_missing_steps", "terminally_abandoned_steps"}
 	if err = w.Write(header); err != nil {
 		return err
 	}
 	var md strings.Builder
-	md.WriteString("# Email benchmark results\n\nRates use 95% Wilson intervals. Latency intervals use 2,000 seeded bootstrap resamples of uncensored runs; fewer than two observations has no interval. Zero observed failures is not a guarantee. Expected baseline duplicates are valid results. Missing effects are measured at the observation deadline, not assumed permanently lost.\n\n| Cell | Valid / invalid / failed / unsupported | Censored | Duplicate rate [95% CI] | Completion rate [95% CI] | Uncertain rate [95% CI] | Median / p95 ms |\n|---|---:|---:|---|---|---|---:|\n")
+	md.WriteString("# Email benchmark results\n\nRates use 95% Wilson intervals. Latency intervals use 2,000 seeded bootstrap resamples of uncensored runs; fewer than two observations has no interval. Zero observed failures is not a guarantee. Expected baseline duplicates are valid results. Missing effects are measured at the observation deadline, not assumed permanently lost. Recovery latency is split into detection delay, which is dominated by the configured `prepared_grace_ms`, and resolution time, which covers verification and durable decision.\n\n| Cell | Valid / invalid / failed / unsupported | Censored | Duplicate rate [95% CI] | Completion rate [95% CI] | Uncertain rate [95% CI] | Median / p95 ms |\n|---|---:|---:|---|---|---|---:|\n")
 	for _, key := range keys {
 		var n, invalid, failed, unsupported, censored, duplicates, complete, uncertain, missing, orphans, falseCompletion, excess, unattempted, uncertainMissing, abandoned int
-		var latency, recovery []float64
+		var latency, recovery, detection, resolution []float64
 		var dispatch, retry, verify, writes, storage float64
 		for _, r := range groups[key] {
 			switch r.Status {
@@ -97,6 +97,12 @@ func Summarize(output string) error {
 				latency = append(latency, r.DurationMS)
 				if r.RecoveryMS != nil {
 					recovery = append(recovery, *r.RecoveryMS)
+				}
+				if r.DetectionMS != nil {
+					detection = append(detection, *r.DetectionMS)
+				}
+				if r.ResolutionMS != nil {
+					resolution = append(resolution, *r.ResolutionMS)
 				}
 			}
 			if r.Duplicate {
@@ -130,6 +136,8 @@ func Summarize(output string) error {
 		median, ml, mh := Bootstrap(latency, .5, 1)
 		p95, pl, ph := Bootstrap(latency, .95, 1)
 		rm, rl, rh := Bootstrap(recovery, .5, 1)
+		dm, dl, dh := Bootstrap(detection, .5, 1)
+		sm, sl, sh := Bootstrap(resolution, .5, 1)
 		parts := strings.Split(key, "/")
 		baselineKey := parts[0] + "/" + parts[1] + "/none"
 		var baseline []float64
@@ -148,7 +156,7 @@ func Summarize(output string) error {
 			lo, hi := Wilson(k, n)
 			values = append(values, strconv.Itoa(k), number(lo), number(hi))
 		}
-		values = append(values, strconv.Itoa(falseCompletion), number(median), number(ml), number(mh), number(p95), number(pl), number(ph), number(rm), number(rl), number(rh))
+		values = append(values, strconv.Itoa(falseCompletion), number(median), number(ml), number(mh), number(p95), number(pl), number(ph), number(rm), number(rl), number(rh), number(dm), number(dl), number(dh), number(sm), number(sl), number(sh))
 		for _, v := range []float64{dispatch, retry, verify, writes} {
 			mean := math.NaN()
 			if n > 0 {

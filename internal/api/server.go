@@ -30,6 +30,23 @@ type Server struct {
 	requests   *prometheus.CounterVec
 	duration   *prometheus.HistogramVec
 	registry   *prometheus.Registry
+	// preparedGrace is the ordinary recovery age threshold measured from
+	// preparation or retry start, not from dispatch authorization. It trades
+	// detection latency against claiming work that is still in flight.
+	preparedGrace time.Duration
+}
+
+// DefaultPreparedGrace is the recovery detection delay applied when a
+// deployment does not configure one.
+const DefaultPreparedGrace = 5 * time.Second
+
+// SetPreparedGrace overrides the recovery detection delay. Experiments record
+// the configured value so that recovery latency can be reported as detection
+// delay plus verification and resolution time.
+func (s *Server) SetPreparedGrace(d time.Duration) {
+	if d > 0 {
+		s.preparedGrace = d
+	}
 }
 
 func New(s store.Store, logger *slog.Logger, authToken, adminToken string) *Server {
@@ -37,7 +54,7 @@ func New(s store.Store, logger *slog.Logger, authToken, adminToken string) *Serv
 	requests := prometheus.NewCounterVec(prometheus.CounterOpts{Name: "watchkeeper_http_requests_total", Help: "HTTP requests handled."}, []string{"route", "method", "status_class"})
 	duration := prometheus.NewHistogramVec(prometheus.HistogramOpts{Name: "watchkeeper_http_request_duration_seconds", Help: "HTTP request duration."}, []string{"route", "method"})
 	registry.MustRegister(requests, duration)
-	return &Server{store: s, logger: logger, authToken: authToken, adminToken: adminToken, now: time.Now, requests: requests, duration: duration, registry: registry}
+	return &Server{store: s, logger: logger, authToken: authToken, adminToken: adminToken, now: time.Now, requests: requests, duration: duration, registry: registry, preparedGrace: DefaultPreparedGrace}
 }
 
 func (s *Server) Handler() http.Handler {
@@ -150,7 +167,7 @@ func (s *Server) claimRecovery(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, r, domain.NewError(domain.ErrorValidation, "invalid_claim", "lease_duration_ms must be between 5000 and 300000"))
 		return
 	}
-	claims, err := s.store.ClaimRecovery(r.Context(), payload.WorkerID, payload.Limit, time.Duration(payload.LeaseDurationMS)*time.Millisecond, 5*time.Second)
+	claims, err := s.store.ClaimRecovery(r.Context(), payload.WorkerID, payload.Limit, time.Duration(payload.LeaseDurationMS)*time.Millisecond, s.preparedGrace)
 	if err != nil {
 		s.writeError(w, r, err)
 		return

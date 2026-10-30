@@ -1,0 +1,44 @@
+{
+  "config": {
+    "version": 1,
+    "strategies": [
+      "blind_retry",
+      "idempotency_key_retry",
+      "checkpoint_recovery",
+      "watchkeeper"
+    ],
+    "profiles": [
+      "receipt_status",
+      "idempotency_only",
+      "indirect_unique",
+      "none"
+    ],
+    "scenarios": [
+      "none"
+    ],
+    "repetitions": 100,
+    "seed": 1,
+    "deadline_ms": 60000,
+    "outage_ms": 2000,
+    "delay_ms": 5000,
+    "drain_ms": 10000,
+    "prepared_grace_ms": 500,
+    "assert_no_duplicate_effects": null
+  },
+  "config_hash": "f705567653198fac727149eb6ff5a269dc178c5d1fb66dd52f728d26594861c7",
+  "cpus": 10,
+  "created_at": "2026-09-11T03:26:31.509772888Z",
+  "dirty_diff_hash": "47f4a176c9000740fc9520abf1859972d480579568456cf7ad82a53a9392128a",
+  "go": "go1.27.0",
+  "host": "linux/arm64",
+  "image_digests": "sha256:0e99a487fb06cfba6edab681e796d835dcae2286b3f3beb8ad31e3fabdc78242 [\"watchkeeper-bench-storage-overhead-suite@sha256:0e99a487fb06cfba6edab681e796d835dcae2286b3f3beb8ad31e3fabdc78242\"]\nsha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 [\"postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73\"]",
+  "latency_scope": "workflow execution including child startup and shared fault-observation HTTP hooks; excludes service startup",
+  "schema_versions": {
+    "simulator": 2,
+    "watchkeeper": 3
+  },
+  "source_revision": "ce072f6a25addbc7739afc3707b86054c78bf572",
+  "storage_scope": "physical relation growth; includes allocator noise, report in aggregate",
+  "version": 1,
+  "writes_scope": "committed application row changes, reconstructed from durable state and audit events"
+}

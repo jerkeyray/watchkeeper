@@ -1,0 +1,359 @@
+{
+  "research-email": {
+    "statuses": {
+      "completed": 15900,
+      "unsupported": 6500
+    },
+    "cells": 159,
+    "invariant_correctness_cells": 159,
+    "totals": {
+      "false_completion": 0,
+      "terminally_abandoned": 0,
+      "missing_at_deadline": 1900,
+      "unattempted": 1300,
+      "uncertain_missing": 600,
+      "unacknowledged_effects": 10500,
+      "excess_effects": 9500,
+      "censored": 0
+    },
+    "faults": {
+      "accepted_before_commit": {
+        "blind_retry": [
+          400,
+          400
+        ],
+        "idempotency_key_retry": [
+          0,
+          100
+        ],
+        "checkpoint_recovery": [
+          400,
+          400
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      },
+      "after_commit": {
+        "blind_retry": [
+          400,
+          400
+        ],
+        "idempotency_key_retry": [
+          0,
+          100
+        ],
+        "checkpoint_recovery": [
+          400,
+          400
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      },
+      "after_persistence": {
+        "blind_retry": [
+          400,
+          400
+        ],
+        "idempotency_key_retry": [
+          0,
+          100
+        ],
+        "checkpoint_recovery": [
+          0,
+          400
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      },
+      "after_response": {
+        "blind_retry": [
+          400,
+          400
+        ],
+        "idempotency_key_retry": [
+          0,
+          100
+        ],
+        "checkpoint_recovery": [
+          400,
+          400
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      },
+      "before_dispatch": {
+        "blind_retry": [
+          400,
+          400
+        ],
+        "idempotency_key_retry": [
+          0,
+          100
+        ],
+        "checkpoint_recovery": [
+          0,
+          400
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      },
+      "before_intent": {
+        "blind_retry": [
+          400,
+          400
+        ],
+        "idempotency_key_retry": [
+          0,
+          100
+        ],
+        "checkpoint_recovery": [
+          0,
+          400
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      },
+      "coordinator_after_result": {
+        "blind_retry": [
+          0,
+          0
+        ],
+        "idempotency_key_retry": [
+          0,
+          0
+        ],
+        "checkpoint_recovery": [
+          0,
+          0
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      },
+      "coordinator_before_result": {
+        "blind_retry": [
+          0,
+          0
+        ],
+        "idempotency_key_retry": [
+          0,
+          0
+        ],
+        "checkpoint_recovery": [
+          0,
+          0
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      },
+      "database_unavailable": {
+        "blind_retry": [
+          0,
+          0
+        ],
+        "idempotency_key_retry": [
+          0,
+          0
+        ],
+        "checkpoint_recovery": [
+          400,
+          400
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      },
+      "delayed_commit": {
+        "blind_retry": [
+          400,
+          400
+        ],
+        "idempotency_key_retry": [
+          0,
+          100
+        ],
+        "checkpoint_recovery": [
+          400,
+          400
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      },
+      "duplicate_delivery": {
+        "blind_retry": [
+          400,
+          400
+        ],
+        "idempotency_key_retry": [
+          0,
+          100
+        ],
+        "checkpoint_recovery": [
+          400,
+          400
+        ],
+        "watchkeeper": [
+          300,
+          400
+        ]
+      },
+      "lost_response": {
+        "blind_retry": [
+          400,
+          400
+        ],
+        "idempotency_key_retry": [
+          0,
+          100
+        ],
+        "checkpoint_recovery": [
+          400,
+          400
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      },
+      "none": {
+        "blind_retry": [
+          0,
+          400
+        ],
+        "idempotency_key_retry": [
+          0,
+          100
+        ],
+        "checkpoint_recovery": [
+          0,
+          400
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      },
+      "service_unavailable": {
+        "blind_retry": [
+          400,
+          400
+        ],
+        "idempotency_key_retry": [
+          0,
+          100
+        ],
+        "checkpoint_recovery": [
+          0,
+          400
+        ],
+        "watchkeeper": [
+          0,
+          400
+        ]
+      }
+    },
+    "watchkeeper_profiles": {
+      "receipt_status": {
+        "n": 1300,
+        "completed": 1100,
+        "uncertain": 200,
+        "duplicates": 100
+      },
+      "idempotency_only": {
+        "n": 1300,
+        "completed": 1300,
+        "uncertain": 0,
+        "duplicates": 0
+      },
+      "indirect_unique": {
+        "n": 1300,
+        "completed": 1100,
+        "uncertain": 200,
+        "duplicates": 100
+      },
+      "none": {
+        "n": 1300,
+        "completed": 400,
+        "uncertain": 900,
+        "duplicates": 100
+      }
+    },
+    "latency": {
+      "blind_retry": {
+        "recovery_ms": 5.7340415,
+        "detection_ms": null,
+        "resolution_ms": null
+      },
+      "idempotency_key_retry": {
+        "recovery_ms": 5.875125,
+        "detection_ms": null,
+        "resolution_ms": null
+      },
+      "checkpoint_recovery": {
+        "recovery_ms": 8.0799375,
+        "detection_ms": null,
+        "resolution_ms": null
+      },
+      "watchkeeper": {
+        "recovery_ms": 635.439167,
+        "detection_ms": 531.7342715,
+        "resolution_ms": 115.147625
+      }
+    }
+  },
+  "storage-overhead": {
+    "statuses": {
+      "completed": 1300,
+      "unsupported": 300
+    },
+    "cells": 13,
+    "strategies": {
+      "blind_retry": {
+        "n": 400,
+        "median_ms": 4.579521,
+        "p95_ms": 7.741104499999987,
+        "mean_row_changes": 6,
+        "mean_relation_growth_bytes": 1454.08
+      },
+      "checkpoint_recovery": {
+        "n": 400,
+        "median_ms": 8.291104,
+        "p95_ms": 11.935392299999998,
+        "mean_row_changes": 9,
+        "mean_relation_growth_bytes": 1597.44
+      },
+      "idempotency_key_retry": {
+        "n": 100,
+        "median_ms": 5.019021,
+        "p95_ms": 7.6736077,
+        "mean_row_changes": 9,
+        "mean_relation_growth_bytes": 3276.8
+      },
+      "watchkeeper": {
+        "n": 400,
+        "median_ms": 18.5917495,
+        "p95_ms": 26.78196935,
+        "mean_row_changes": 28.75,
+        "mean_relation_growth_bytes": 8028.16
+      }
+    }
+  }
+}

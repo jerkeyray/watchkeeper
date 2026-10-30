@@ -1,7 +1,7 @@
 SHELL := /bin/sh
 COMPOSE := docker compose -f deploy/compose/compose.yaml
 
-.PHONY: bootstrap fmt fmt-check test test-race vet build migrate migrate-simulator compose-up compose-down smoke recovery-smoke smoke-all
+.PHONY: bootstrap fmt fmt-check test test-race vet build migrate migrate-simulator compose-up compose-down smoke recovery-smoke smoke-all demo demo-cli
 
 bootstrap:
 	go mod download
@@ -44,9 +44,24 @@ recovery-smoke: compose-up
 
 smoke-all: smoke recovery-smoke
 
+.PHONY: demo
+demo: compose-up
+	go run ./cmd/watchkeeper-demo
+
+.PHONY: demo-cli
+demo-cli: compose-up
+	go run ./cmd/demo
+
 .PHONY: bench-smoke bench-email
 bench-smoke:
 	./scripts/benchmark.sh run benchmarks/smoke.json
 
 bench-email:
 	./scripts/benchmark.sh run benchmarks/email.json
+
+.PHONY: report evidence-check
+report:
+	python3 scripts/build-report.py
+
+evidence-check:
+	python3 scripts/analyze-evidence.py

@@ -1,0 +1,57 @@
+{
+  "config": {
+    "version": 1,
+    "strategies": [
+      "blind_retry",
+      "idempotency_key_retry",
+      "checkpoint_recovery",
+      "watchkeeper"
+    ],
+    "profiles": [
+      "receipt_status",
+      "idempotency_only",
+      "indirect_unique",
+      "none"
+    ],
+    "scenarios": [
+      "none",
+      "before_intent",
+      "before_dispatch",
+      "accepted_before_commit",
+      "after_commit",
+      "after_response",
+      "after_persistence",
+      "lost_response",
+      "duplicate_delivery",
+      "delayed_commit",
+      "service_unavailable",
+      "database_unavailable",
+      "coordinator_before_result",
+      "coordinator_after_result"
+    ],
+    "repetitions": 100,
+    "seed": 1,
+    "deadline_ms": 60000,
+    "outage_ms": 2000,
+    "delay_ms": 5000,
+    "drain_ms": 10000,
+    "prepared_grace_ms": 500,
+    "assert_no_duplicate_effects": null
+  },
+  "config_hash": "2873f3b9077393839267f50b297b4a7821ac6e93689de7f1bd149d0c201fc3b4",
+  "cpus": 10,
+  "created_at": "2026-09-10T19:07:40.207988257Z",
+  "dirty_diff_hash": "47f4a176c9000740fc9520abf1859972d480579568456cf7ad82a53a9392128a",
+  "go": "go1.27.0",
+  "host": "linux/arm64",
+  "image_digests": "sha256:46e18b2ae1f9ccbd96a1394ab8a35e842a4f8ca2c583f24188fb3c30c9025154 [\"watchkeeper-bench-research-email-suite@sha256:46e18b2ae1f9ccbd96a1394ab8a35e842a4f8ca2c583f24188fb3c30c9025154\"]\nsha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 [\"postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73\"]",
+  "latency_scope": "workflow execution including child startup and shared fault-observation HTTP hooks; excludes service startup",
+  "schema_versions": {
+    "simulator": 2,
+    "watchkeeper": 3
+  },
+  "source_revision": "ce072f6a25addbc7739afc3707b86054c78bf572",
+  "storage_scope": "physical relation growth; includes allocator noise, report in aggregate",
+  "version": 1,
+  "writes_scope": "committed application row changes, reconstructed from durable state and audit events"
+}

@@ -1,6 +1,6 @@
 # Roadmap
 
-Watchkeeper is being built as a research prototype in increments. The ordering below keeps correctness mechanisms executable before adding experiment scale.
+Watchkeeper has a completed email prototype and retained comparative evaluation. This roadmap separates delivered behavior from additional research and production work.
 
 ## Completed
 
@@ -15,10 +15,10 @@ Watchkeeper is being built as a research prototype in increments. The ordering b
 
 - Recovery request, lease claim, renewal, result, retry-attempt, and manual-resolution APIs.
 - Concurrent claim exclusion, hashed claim tokens, lease expiry, state/version guards, atomic observation/decision transitions, and audit events.
-- Email status verifier and coordinator classification for completed, absent, contradictory, unknown, and transient outcomes.
+- Email verifier and coordinator classification for completed, contradictory, unknown, and transient outcomes, with retry justified by non-dispatch or a verified keyed replay contract.
 - Lost-confirmation smoke proof demonstrating reconciliation without redispatch.
 
-## Email benchmark implementation
+## Completed email evaluation and demonstrations
 
 - Durable single-send authorization, conservative migration of unresolved intents, safe restart/continuation, and explicit idempotency replay.
 - Receipt/status, indirect-unique, idempotency-only, and no-evidence email profiles.
@@ -26,11 +26,13 @@ Watchkeeper is being built as a research prototype in increments. The ordering b
 - Real subprocess crashes at acknowledged barriers, delayed commits, duplicate delivery, lost responses, service/database interruptions, and coordinator crashes.
 - Isolated Compose setup; versioned seeded matrix configuration; retained executions and resume; independent ground-truth scoring; CSV/Markdown reports with confidence intervals.
 
-See [Email benchmarks](benchmarks.md) for the implemented fault model and measurement limits. Passing a smoke matrix is evidence about harness behavior, not a completed research evaluation.
+See [Email benchmarks](benchmarks.md) for the implemented fault model and measurement limits. The retained research matrix has 15,900 valid executions; the separate overhead batch has 1,300. See [Evaluation](evaluation.md) and [published evidence](evidence/README.md). Smoke checks remain harness checks rather than substitutes for the retained research analysis.
+
+Browser and terminal demonstrations, the comprehensive [final report](final-project-report.md), and source-controlled evidence summaries are delivered. The symbolic policy is implemented; learned verification ordering and LLM integration are future work.
 
 ## Next research stages
 
-1. Execute the explicit 100-repetition email dataset from a pinned source/environment, assess interval widths, and write RQ1–RQ4 results and discussion.
+1. Re-run the retained conditions from a clean final source snapshot and independently reproduce the published analysis.
 2. Add calendar creation, inventory reservation, and record-transition workloads with independent ground truth.
 3. Extend process-crash experiments to K3s pod and host failures.
 4. Add distributed traces and physical database/WAL measurements beyond the current committed application-row counts and relation-size deltas.

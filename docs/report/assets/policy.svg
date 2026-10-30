@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="491.27559055118115" height="218" preserveAspectRatio="xMinYMin meet" viewBox="0 0 491 218" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="491.27559055118115" height="218"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-218)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="177" width="335" height="29" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="94.24" y="188.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,377) scale(1,-1)">Matching authoritative completion</text>
+			<rect x="390" y="177" width="101" height="29" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="416.4925" y="188.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,377) scale(1,-1)">Reconciled</text>
+			<path d="M 335,191.5 L 390,191.5 Z" style="stroke: rgb(15%,45%,40%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="390 191.5, 385.4978 193.6748, 385.4978 189.3252" style="stroke: rgb(15%,45%,40%); stroke-linecap: butt; stroke-width: 1; fill: rgb(15%,45%,40%); fill-rule: evenodd;"/>
+			<rect x="0" y="138" width="335" height="29" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="78.98949999999999" y="149.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,299) scale(1,-1)">No dispatch authorization and no conflict</text>
+			<rect x="390" y="138" width="101" height="29" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="419.9935" y="149.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,299) scale(1,-1)">Retryable</text>
+			<path d="M 335,152.5 L 390,152.5 Z" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="390 152.5, 385.4978 154.6748, 385.4978 150.3252" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(20%,37%,52%); fill-rule: evenodd;"/>
+			<rect x="0" y="99" width="335" height="29" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="99.97749999999999" y="110.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,221) scale(1,-1)">Verified durable replay contract</text>
+			<rect x="390" y="99" width="101" height="29" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="419.9935" y="110.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,221) scale(1,-1)">Retryable</text>
+			<path d="M 335,113.5 L 390,113.5 Z" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="390 113.5, 385.4978 115.6748, 385.4978 111.3252" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(20%,37%,52%); fill-rule: evenodd;"/>
+			<rect x="0" y="60" width="335" height="29" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="90.48249999999999" y="71.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,143) scale(1,-1)">Transient failure below attempt limit</text>
+			<rect x="390" y="60" width="101" height="29" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="428.998" y="71.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,143) scale(1,-1)">Defer</text>
+			<path d="M 335,74.5 L 390,74.5 Z" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="390 74.5, 385.4978 76.67483, 385.4978 72.32517" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(20%,37%,52%); fill-rule: evenodd;"/>
+			<rect x="0" y="21" width="335" height="29" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="70.2235" y="32.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,65) scale(1,-1)">Otherwise insufficient or conflicting evidence</text>
+			<rect x="390" y="21" width="101" height="29" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="419.746" y="32.5" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,65) scale(1,-1)">Uncertain</text>
+			<path d="M 335,35.5 L 390,35.5 Z" style="stroke: rgb(65%,34%,29%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="390 35.5, 385.4978 37.67483, 385.4978 33.32517" style="stroke: rgb(65%,34%,29%); stroke-linecap: butt; stroke-width: 1; fill: rgb(65%,34%,29%); fill-rule: evenodd;"/>
+		</g>
+	</g>
+</svg>

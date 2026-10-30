@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="491.27559055118115" height="153" preserveAspectRatio="xMinYMin meet" viewBox="0 0 491 153" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="491.27559055118115" height="153"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-153)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="85" width="130" height="50" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="49.4975" y="113.0" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,226) scale(1,-1)">Worker</text>
+			<text x="37.7345" y="101.0" style="font-family: Helvetica; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,202) scale(1,-1)">durable intent</text>
+			<rect x="180" y="85" width="130" height="50" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="210.4805" y="113.0" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,226) scale(1,-1)">External service</text>
+			<text x="215.993" y="101.0" style="font-family: Helvetica; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,202) scale(1,-1)">commits effect</text>
+			<rect x="360" y="85" width="130" height="50" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="391.2365" y="113.0" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,226) scale(1,-1)">Worker crashes</text>
+			<text x="396.7355" y="101.0" style="font-family: Helvetica; font-size: 9px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,202) scale(1,-1)">receipt absent</text>
+			<path d="M 130,110 L 180,110 Z" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="180 110, 175.4978 112.1748, 175.4978 107.8252" style="stroke: rgb(20%,37%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(20%,37%,52%); fill-rule: evenodd;"/>
+			<path d="M 310,110 L 360,110 Z" style="stroke: rgb(65%,34%,29%); stroke-linecap: butt; stroke-width: 1; stroke-dasharray: 3, 3;"/>
+			<polygon points="360 110, 355.4978 112.1748, 355.4978 107.8252" style="stroke: rgb(65%,34%,29%); stroke-linecap: butt; stroke-width: 1; fill: rgb(65%,34%,29%); fill-rule: evenodd;"/>
+			<text x="0" y="51" style="font-family: Helvetica-Bold; font-size: 11px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,102) scale(1,-1)">Local knowledge: unfinished</text>
+			<text x="0" y="27" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,25%); stroke:none;" transform="translate(0,54) scale(1,-1)">Possible external states: not committed OR already committed</text>
+			<text x="0" y="7" style="font-family: Helvetica; font-size: 9.5px;fill: rgb(33%,39%,45%); stroke:none;" transform="translate(0,14) scale(1,-1)">Recovery must distinguish these states using evidence.</text>
+		</g>
+	</g>
+</svg>

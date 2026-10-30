@@ -45,7 +45,7 @@ The matrix includes a no-failure control; crashes before intent, before dispatch
 
 The controller waits for an acknowledged barrier, records the trigger, and kills the relevant child. Accepted simulator work uses a server-owned context, so it may commit after the caller dies. Database faults terminate real pooled TCP connections and refuse new ones temporarily. Service faults return unavailable responses. These are explicitly scoped fault models, not whole-host failures.
 
-Defaults are one active trial, seeds 1–100, 100 repetitions, a 60-second execution deadline, 2-second outages, 5-second delayed commits, and a further 10-second drain allowance. Strategy order is shuffled from the recorded seed. Draining ends as soon as all accepted requests settle; a drain timeout invalidates the trial rather than treating unfinished ground truth as definitive.
+Defaults are one active trial, seeds 1–100, 100 repetitions, a 60-second execution deadline, 2-second outages, 5-second delayed commits, and a further 10-second drain allowance. `prepared_grace_ms` sets the recovery detection delay: the minimum age since preparation or retry start before an unresolved Prepared operation is normally claimable, trading detection latency against coordinators claiming operations that are still legitimately in flight. It is a deployment tuning parameter, not a property of the recovery design, so the suite configures it to 500 ms, records it in the manifest, and reports recovery latency split into detection delay and resolution time. The service default remains 5 s. Strategy order is shuffled from the recorded seed. Draining ends as soon as all accepted requests settle; a drain timeout invalidates the trial rather than treating unfinished ground truth as definitive.
 
 ## Outputs and metrics
 
@@ -68,3 +68,13 @@ Single-send authorization controls compliant workers. It cannot revoke a request
 An ordinary API without deduplication can still create duplicate effects under duplicated delivery. Watchkeeper does not claim to prevent that service behavior. Indirect positive evidence depends on exact matching and the declared uniqueness of the logical message key. The simulator is not a real email provider, the three databases share a PostgreSQL server, and the harness introduces shared observation overhead. Other workloads, service fencing, K3s, and full distributed tracing remain future work.
 
 A dedicated no-failure storage/overhead batch is available as `./scripts/benchmark.sh run benchmarks/storage.json storage-email`. Use its aggregate relation growth and matched raw latency/write counts rather than mixing storage deltas from fault scenarios into baseline overhead.
+
+## Completed evaluation
+
+The retained main matrix has 15,900 valid executions and 6,500 unsupported combinations. The dedicated overhead batch has 1,300 valid executions and 300 unsupported combinations. [Evaluation](evaluation.md) reports the measured outcomes; [the final report](final-project-report.md) adds architecture, contribution, and discussion.
+
+[Source-controlled evidence](evidence/README.md) includes compressed raw records, original manifests, CSV summaries, checksums, and two full representative decision traces. Historical source revision and dirty hash are preserved rather than relabeled as the current documentation revision.
+
+All 159 supported main cells have invariant correctness outcomes across repetitions. Generated Wilson intervals remain in CSV for transparency, but they do not establish a population failure probability for this deterministic matrix. Timing samples vary and should be analyzed separately.
+
+The grace threshold uses `operations.prepared_at`, not the dispatch-authorization timestamp. An explicit reconciliation schedule can make an operation eligible earlier. A new retry attempt resets `prepared_at`.

@@ -64,10 +64,18 @@ The API tests load and validate [`api/openapi.yaml`](../api/openapi.yaml). Readi
 
 The workflow under [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs formatting, unit tests, race tests, vet, build, OpenAPI validation through the test suite, and Docker-backed smoke proofs. A local pass is still valuable because Compose behavior depends on the host engine and retained volumes.
 
-## Planned experiment method
+## Implemented experiment method
 
-The experiment phase will cross four dimensions: strategy, workload, service capability, and injected failure point. Each configured cell defaults to 100 deterministic seeded repetitions. Raw runs, configuration hashes, source revision, image digests, fault barriers, observations, decisions, timings, and ledger truth must be retained.
+The email evaluation crosses strategy, service capability, and injected failure point for one implemented workload. Additional workloads remain future work. Each configured cell defaults to 100 deterministic seeded repetitions. Raw runs, configuration hashes, source revision, image digests, fault barriers, observations, decisions, timings, and ledger truth must be retained.
 
-Reported outcomes will include duplicate, loss, orphan, inconsistency, completion, uncertainty, recovery latency, retry, database-write, storage-growth, and execution-overhead metrics with 95% confidence intervals. A result is complete only when every configured cell has its expected repetitions and can be reproduced from recorded inputs.
+The harness reports duplicate, loss, orphan, inconsistency, completion, uncertainty, recovery latency, retry, database-write, storage-growth, and execution-overhead metrics with 95% confidence intervals. A result is complete only when every configured cell has its expected repetitions and can be reproduced from recorded inputs.
 
 The email comparative suite is implemented. See [Benchmarks](benchmarks.md) for execution, resumption, metrics, and limitations. Smoke matrices validate the harness; the 100-repetition research run is explicit.
+
+## Retained evaluation and current checks
+
+The completed main dataset has 15,900 valid executions across 159 cells plus 6,500 unsupported combinations. The separate no-failure overhead dataset has 1,300 valid executions and 300 unsupported combinations. [Evaluation](evaluation.md) describes what those records establish. [Published evidence](evidence/README.md) retains compressed raw records, original manifests, and hashes.
+
+Correctness outcomes are invariant within each retained cell. Repeated trials do not sample arbitrary fault distributions. The CSV generator emits Wilson intervals, but the final report uses condition-specific correctness counts and treats timing variability separately.
+
+The final-document session on 30 October 2026 passed formatting, vet, and `go build -buildvcs=false ./cmd/...`. The benchmark, configuration, domain, and store packages passed race-enabled tests; PostgreSQL-dependent tests skipped without the configured test database. The complete race suite was blocked by restricted HTTP test sockets. A local PostgreSQL attempt was blocked by shared-memory restrictions, and Docker was not running. No fresh full-system pass is claimed. Run the documented integration and smoke commands in an unrestricted development environment or CI.

@@ -1,1 +1,1 @@
-{"version":1,"repetitions":1,"seed":1,"scenarios":["none","after_commit","before_dispatch","delayed_commit"],"deadline_ms":20000,"outage_ms":2000,"delay_ms":1000,"drain_ms":3000,"assert_no_duplicate_effects":["watchkeeper","idempotency_key_retry"]}
+{"version":1,"repetitions":1,"seed":1,"scenarios":["none","after_commit","before_dispatch","delayed_commit"],"deadline_ms":20000,"outage_ms":2000,"delay_ms":1000,"drain_ms":3000,"assert_no_duplicate_effects":["watchkeeper","idempotency_key_retry"],"prepared_grace_ms":500}

@@ -17,7 +17,7 @@ make bootstrap
 make smoke
 ```
 
-`make smoke` builds the containers, creates independently credentialed Watchkeeper and simulator databases, applies both Goose migrations, starts the API and simulator, and runs one workflow worker. A successful result reports `confirmed`, exactly one external effect, and ordered prepare/confirm events.
+`make smoke` builds the containers, creates independently credentialed Watchkeeper and simulator databases, applies both Goose migrations, starts the API and simulator, and runs one workflow worker. A successful result reports `confirmed`, exactly one external effect, and ordered prepare, dispatch-authorization, and confirmation events.
 
 Exercise the uncertain-completion path:
 
@@ -114,3 +114,7 @@ curl -sS http://localhost:8080/metrics \
 - **A reused volume has old initialization credentials:** remove the Compose volume only if its data is disposable, then recreate the stack.
 - **A request returns 401:** public operation routes use `WK_AUTH_TOKEN`; recovery, manual-resolution, and metrics routes use `WK_ADMIN_TOKEN`.
 
+
+## Demonstrations and final report
+
+Run `make demo` for the browser console at `http://127.0.0.1:8070`, or `make demo-cli` for the terminal process-crash comparison. [The demo guide](demo.md) distinguishes deliberate lost confirmation from a real worker kill. The submission document is [the final project report](report/Watchkeeper_Final_Project_Report.pdf), with [editable Markdown](final-project-report.md) and [retained evaluation evidence](evidence/README.md).

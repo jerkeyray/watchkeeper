@@ -351,7 +351,9 @@ func (r *runner) runTrial(parent context.Context, p Result) (Result, error) {
 	}
 	log := slog.New(slog.NewTextHandler(io.Discard, nil))
 	admin := uuid.NewString()
-	apiServer := httptest.NewServer(api.New(scopedStore{Postgres: store.NewPostgres(pool), workflowID: p.ExecutionID}, log, t.token, admin).Handler())
+	apiHandler := api.New(scopedStore{Postgres: store.NewPostgres(pool), workflowID: p.ExecutionID}, log, t.token, admin)
+	apiHandler.SetPreparedGrace(time.Duration(r.config.PreparedGraceMS) * time.Millisecond)
+	apiServer := httptest.NewServer(apiHandler.Handler())
 	defer apiServer.Close()
 	sim := simulator.NewServer(simulator.NewPostgresEmailStore(r.sim), t.token, uuid.NewString(), log)
 	sim.Profile = p.Profile
@@ -423,11 +425,23 @@ func (r *runner) runTrial(parent context.Context, p Result) (Result, error) {
 	}
 	p.Verifications = t.verifications
 	p.StorageBytes = after - before
-	if !t.triggerAt.IsZero() {
-		v := float64(started.Add(time.Duration(elapsed*float64(time.Millisecond))).Sub(t.triggerAt)) / float64(time.Millisecond)
-		p.RecoveryMS = &v
-	}
 	events := append([]Event(nil), t.events...)
+	if !t.triggerAt.IsZero() {
+		end := started.Add(time.Duration(elapsed * float64(time.Millisecond)))
+		v := float64(end.Sub(t.triggerAt)) / float64(time.Millisecond)
+		p.RecoveryMS = &v
+		// Detection delay is dominated by the configured prepared grace; the
+		// remainder is the verification and resolution work the design controls.
+		for _, e := range events {
+			if e.Barrier != "recovery_claimed" || e.At.Before(t.triggerAt) {
+				continue
+			}
+			detection := float64(e.At.Sub(t.triggerAt)) / float64(time.Millisecond)
+			resolution := float64(end.Sub(e.At)) / float64(time.Millisecond)
+			p.DetectionMS, p.ResolutionMS = &detection, &resolution
+			break
+		}
+	}
 	faultErr := t.err
 	t.mu.Unlock()
 	if p.Strategy == "watchkeeper" {

@@ -1,7 +1,7 @@
 # Watchkeeper
 
 <p align="center">
-  <strong>Crash-consistent recovery for stateful cloud workflows.</strong>
+  <strong>Evidence-driven recovery for interrupted tool-using workflows.</strong>
 </p>
 
 <p align="center">
@@ -17,9 +17,9 @@
 
 ---
 
-## The workflow must know what happened outside it.
+## The problem
 
-That is the whole problem Watchkeeper tackles.
+A missing local receipt cannot establish whether an external action completed.
 
 A workflow asks an external service to send an email, reserve inventory, create a meeting, or update a record. The service commits the effect. Before the worker can save the receipt, it crashes. Recovery now sees incomplete local work, but the external effect may already exist.
 
@@ -35,17 +35,18 @@ Watchkeeper does not claim universal exactly-once execution. When the service ca
 
 ## Why this exists
 
-```text
-workflow log                       external service
-     |                                    |
-     | persist intent                     |
-     |-----------------------------------> |
-     | dispatch operation                 |
-     |-----------------------------------> | commit effect
-     |                                    |
-     X worker crashes                     |
-                                          |
-recovery sees "not confirmed"       effect may already exist
+```mermaid
+sequenceDiagram
+    participant W as Workflow worker
+    participant K as Watchkeeper
+    participant S as External service
+    W->>K: Persist intent and authorize one send
+    W->>S: Dispatch stable operation ID
+    S->>S: Commit effect
+    Note over W,S: Worker crashes before receipt persistence
+    K->>S: Verify unresolved operation
+    S-->>K: Evidence or insufficient knowledge
+    Note over K: Reconcile, permit retry, or preserve uncertainty
 ```
 
 Normal workflow replay cannot distinguish "the call never happened" from "the call committed and its response was lost." Watchkeeper makes that disagreement explicit and gives recovery a fixed, auditable procedure.
@@ -53,6 +54,7 @@ Normal workflow replay cannot distinguish "the call never happened" from "the ca
 ## What is implemented
 
 - **Durable preparation:** PostgreSQL stores the workflow, intent, stable operation ID, request fingerprint, expected effect, and audit event in one transaction.
+- **Single-send authorization:** a separate guarded transaction grants dispatch once per attempt; stale, duplicate, or leased requests return a conflict.
 - **Immutable confirmation:** receipt identity and payload are persisted with the `Confirmed` transition atomically; conflicting replays return `409 Conflict`.
 - **Lease-based recovery:** coordinators claim pending work with expiring, hashed lease tokens and optimistic operation versions.
 - **Service verification:** the email adapter queries authoritative status by operation ID instead of redispatching an ambiguous effect.
@@ -64,6 +66,12 @@ Normal workflow replay cannot distinguish "the call never happened" from "the ca
 - **Reproducible local proofs:** Docker smoke flows verify both normal confirmation and post-crash reconciliation.
 
 ## Quickstart
+
+For a visual, presenter-friendly demo, run `make demo` and open
+[the local demo](http://127.0.0.1:8070). It compares blind retry with Watchkeeper
+using real API operations and the simulator's independently stored email effects.
+Choose normal execution, lost confirmation, or no recovery evidence.
+See the [demo guide](docs/demo.md) for the presentation flow.
 
 Requirements:
 
@@ -201,32 +209,31 @@ The email adapter supports receipt/status lookup, exact indirect inspection, exp
 
 ## Architecture
 
-```text
-                         +----------------------+
-                         | recovery coordinator |
-                         +----------+-----------+
-                                    |
-                                    | claim / result
-                                    v
-+-----------------+      +----------+-----------+      +------------------+
-| workflow worker | ---> |   Watchkeeper API    | ---> | Watchkeeper DB   |
-+--------+--------+      +----------------------+      +------------------+
-         |                           |
-         | dispatch operation ID     | verify through adapter
-         v                           v
-+------------------+      +----------------------+
-| email simulator  | <--- | email status adapter |
-+--------+---------+      +----------------------+
-         |
-         v
-+------------------------+
-| independent effect DB  |
-+------------------------+
+```mermaid
+flowchart TD
+    W["Workflow worker"] -->|"prepare, authorize, confirm"| A["Watchkeeper API and policy"]
+    A --> D["Durable operation knowledge"]
+    W -->|"dispatch stable identity"| S["External email simulator"]
+    C["Recovery coordinator"] -->|"claim and submit observation"| A
+    C --> V["Service verifier"]
+    V -->|"allowed evidence interface"| S
+    S --> E["Independent effect ledger"]
 ```
 
 The Watchkeeper and simulator databases use separate credentials and schemas even when they run on one PostgreSQL server. Watchkeeper never reads the simulator's ground-truth tables directly; the coordinator must use the same external status interface a real integration would expose.
 
 See [Architecture](docs/architecture.md) for package boundaries, storage ownership, transactions, and process behavior.
+
+## Final report and retained evaluation
+
+- [Final project report PDF](docs/report/Watchkeeper_Final_Project_Report.pdf) and [editable Markdown source](docs/final-project-report.md).
+- [Results and interpretation](docs/evaluation.md), including deterministic counts, completion costs, and measured overhead.
+- [Published evidence](docs/evidence/README.md): compressed raw records, historical manifests, CSV summaries, checksums, and representative recovery traces.
+- [Novelty and system comparison](docs/final-project-report.md#2-contribution-and-comparison-with-existing-systems): conceptual positioning, separate from the measured baselines.
+
+The main retained dataset contains **15,900 valid executions in 159 supported cells** and **6,500 unsupported combinations**. With status evidence and a crash after external commit, Watchkeeper completed **100/100** workflows with **0/100** duplicate trials. With no evidence, **100/100** became uncertain and **0/100** completed. Duplicated delivery inside the service remains outside the client-side guard.
+
+The implementation is a symbolic recovery system with explicit rules and evidence. The current experiments use a scripted task driver and contain no trained model or LLM planner.
 
 ## Documentation
 
@@ -265,11 +272,11 @@ The test suite covers state transitions, fingerprint canonicalization, API authe
 
 Watchkeeper is a research prototype. Today it supports restartable email workflows and a comparative process-crash benchmark across four recovery strategies and capability profiles. It is not yet a production workflow engine or a general exactly-once layer.
 
-Run `make bench-smoke` to validate the email matrix or `make bench-email` to explicitly start the 100-repetition research suite. See [Email benchmarks](docs/benchmarks.md) for evidence, resume commands, and limitations.
+The retained 100-repetition email evaluation is complete. Run `make bench-smoke` for a fresh harness check or `make bench-email` to explicitly start a new long research suite. See [Email benchmarks](docs/benchmarks.md) for evidence, resume commands, and limitations.
 
 Next stages:
 
-1. Run and analyze the full research dataset from a pinned environment.
+1. Extend the completed email evaluation to additional workloads and evidence contracts.
 2. Calendar, inventory, and record-transition workloads.
 3. K3s pod/host failure experiments.
 4. OpenTelemetry and broader operational measurements.

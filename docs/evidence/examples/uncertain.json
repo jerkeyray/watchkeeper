@@ -1,0 +1,267 @@
+{
+  "result": {
+    "execution_id": "05dfdba9-6964-4016-b581-c44d2dcfed12",
+    "cell": "watchkeeper/none/after_commit",
+    "strategy": "watchkeeper",
+    "profile": "none",
+    "scenario": "after_commit",
+    "repetition": 1,
+    "seed": 1,
+    "status": "completed",
+    "steps": [
+      {
+        "key": "step-1",
+        "attempted": true,
+        "acknowledged": true,
+        "uncertain": false,
+        "effects": 1,
+        "deadline_effects": 1
+      },
+      {
+        "key": "step-2",
+        "attempted": true,
+        "acknowledged": false,
+        "uncertain": true,
+        "effects": 1,
+        "deadline_effects": 1
+      },
+      {
+        "key": "step-3",
+        "attempted": false,
+        "acknowledged": false,
+        "uncertain": false,
+        "effects": 0,
+        "deadline_effects": 0
+      }
+    ],
+    "started_at": "2026-09-10T19:09:37.443604422Z",
+    "duration_ms": 638.842792,
+    "recovery_ms": 627.667417,
+    "detection_ms": 525.789416,
+    "resolution_ms": 101.878042,
+    "completed": false,
+    "censored": false,
+    "duplicate": false,
+    "excess_effects": 0,
+    "missing_at_deadline": 1,
+    "unattempted": 1,
+    "uncertain_missing": 0,
+    "terminally_abandoned": 0,
+    "unacknowledged_effects": 1,
+    "false_completion": 0,
+    "uncertain": true,
+    "dispatches": 2,
+    "retries": 0,
+    "verifications": 0,
+    "application_row_writes": 24,
+    "storage_growth_bytes": 8192,
+    "fault_triggered": true
+  },
+  "operations": [
+    {
+      "id": "01a08cb9-bb29-7acc-8c1d-0417fa6c10b0",
+      "state": "confirmed",
+      "action": "send",
+      "version": 3,
+      "created_at": "2026-09-10T19:09:37.448561+00:00",
+      "updated_at": "2026-09-10T19:09:37.453158+00:00",
+      "lease_owner": null,
+      "logical_key": "step-1",
+      "prepared_at": "2026-09-10T19:09:37.448561+00:00",
+      "resolved_at": "2026-09-10T19:09:37.453158+00:00",
+      "workflow_id": "01a08cb9-bb28-7913-9082-b0ee44fec29a",
+      "confirmed_at": "2026-09-10T19:09:37.453158+00:00",
+      "attempt_count": 1,
+      "trace_context": {},
+      "target_service": "email",
+      "expected_effect": {
+        "template": "step-1",
+        "recipient": "researcher@example.invalid",
+        "logical_message_key": "05dfdba9-6964-4016-b581-c44d2dcfed12/step-1"
+      },
+      "lease_expires_at": null,
+      "next_reconcile_at": null,
+      "capability_profile": "none",
+      "dispatch_authorized": true,
+      "request_fingerprint": "275aabbdbcc0a6c9291766e946d167266fd763bf69fc996b5c563a497acce590"
+    },
+    {
+      "id": "01a08cb9-bb2e-7d3f-a2f7-47c21df93cfa",
+      "state": "uncertain",
+      "action": "send",
+      "version": 4,
+      "created_at": "2026-09-10T19:09:37.454755+00:00",
+      "updated_at": "2026-09-10T19:09:37.983558+00:00",
+      "lease_owner": null,
+      "logical_key": "step-2",
+      "prepared_at": "2026-09-10T19:09:37.454755+00:00",
+      "resolved_at": "2026-09-10T19:09:37.983558+00:00",
+      "workflow_id": "01a08cb9-bb28-7913-9082-b0ee44fec29a",
+      "confirmed_at": null,
+      "attempt_count": 1,
+      "trace_context": {},
+      "target_service": "email",
+      "expected_effect": {
+        "template": "step-2",
+        "recipient": "researcher@example.invalid",
+        "logical_message_key": "05dfdba9-6964-4016-b581-c44d2dcfed12/step-2"
+      },
+      "lease_expires_at": null,
+      "next_reconcile_at": null,
+      "capability_profile": "none",
+      "dispatch_authorized": true,
+      "request_fingerprint": "c90f976fae2445d7df299fc982c7b8480163c1cfda5eed908c9d4648a7ac5632"
+    }
+  ],
+  "observations": [
+    {
+      "id": "01a08cb9-bd40-7a41-ba49-10b63ff78c59",
+      "outcome": "unknown",
+      "evidence": {},
+      "mechanism": "none",
+      "observed_at": "2026-09-10T19:09:37.983558+00:00",
+      "authoritative": false,
+      "external_reference": "",
+      "reconciliation_attempt_id": "01a08cb9-bd38-700a-b217-d704a970b777"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "01a08cb9-bd42-739a-9e46-912fe0773f92",
+      "actor": "recovery-coordinator",
+      "source": "coordinator",
+      "decision": "mark_uncertain",
+      "to_state": "uncertain",
+      "created_at": "2026-09-10T19:09:37.983558+00:00",
+      "from_state": "prepared",
+      "reason_code": "evidence_insufficient",
+      "operation_id": "01a08cb9-bb2e-7d3f-a2f7-47c21df93cfa",
+      "operation_version": 4,
+      "evidence_references": [
+        "01a08cb9-bd40-7a41-ba49-10b63ff78c59"
+      ],
+      "reconciliation_attempt_id": "01a08cb9-bd38-700a-b217-d704a970b777"
+    }
+  ],
+  "audit": [
+    {
+      "id": 476,
+      "actor": "watchkeeper-api",
+      "source": "api",
+      "details": {},
+      "to_state": "prepared",
+      "created_at": "2026-09-10T19:09:37.448561+00:00",
+      "event_type": "intent_prepared",
+      "from_state": null,
+      "reason_code": "intent_persisted",
+      "operation_id": "01a08cb9-bb29-7acc-8c1d-0417fa6c10b0",
+      "operation_version": 1
+    },
+    {
+      "id": 477,
+      "actor": "workflow-worker",
+      "source": "worker",
+      "details": {},
+      "to_state": "prepared",
+      "created_at": "2026-09-10T19:09:37.451574+00:00",
+      "event_type": "dispatch_authorized",
+      "from_state": "prepared",
+      "reason_code": "single_send_authorized",
+      "operation_id": "01a08cb9-bb29-7acc-8c1d-0417fa6c10b0",
+      "operation_version": 2
+    },
+    {
+      "id": 478,
+      "actor": "watchkeeper-api",
+      "source": "api",
+      "details": {
+        "receipt_id": "01a08cb9-bb2d-7775-928d-bb10f755a693"
+      },
+      "to_state": "confirmed",
+      "created_at": "2026-09-10T19:09:37.453158+00:00",
+      "event_type": "receipt_confirmed",
+      "from_state": "prepared",
+      "reason_code": "receipt_persisted",
+      "operation_id": "01a08cb9-bb29-7acc-8c1d-0417fa6c10b0",
+      "operation_version": 3
+    },
+    {
+      "id": 479,
+      "actor": "watchkeeper-api",
+      "source": "api",
+      "details": {},
+      "to_state": "prepared",
+      "created_at": "2026-09-10T19:09:37.454755+00:00",
+      "event_type": "intent_prepared",
+      "from_state": null,
+      "reason_code": "intent_persisted",
+      "operation_id": "01a08cb9-bb2e-7d3f-a2f7-47c21df93cfa",
+      "operation_version": 1
+    },
+    {
+      "id": 480,
+      "actor": "workflow-worker",
+      "source": "worker",
+      "details": {},
+      "to_state": "prepared",
+      "created_at": "2026-09-10T19:09:37.455464+00:00",
+      "event_type": "dispatch_authorized",
+      "from_state": "prepared",
+      "reason_code": "single_send_authorized",
+      "operation_id": "01a08cb9-bb2e-7d3f-a2f7-47c21df93cfa",
+      "operation_version": 2
+    },
+    {
+      "id": 481,
+      "actor": "56181823-478c-4198-9b12-808c40c6a306",
+      "source": "coordinator",
+      "details": {
+        "attempt_id": "01a08cb9-bd38-700a-b217-d704a970b777",
+        "lease_expires_at": "2026-09-10T19:09:42.974575+00:00"
+      },
+      "to_state": "prepared",
+      "created_at": "2026-09-10T19:09:37.974575+00:00",
+      "event_type": "recovery_claimed",
+      "from_state": "prepared",
+      "reason_code": "lease_acquired",
+      "operation_id": "01a08cb9-bb2e-7d3f-a2f7-47c21df93cfa",
+      "operation_version": 3
+    },
+    {
+      "id": 482,
+      "actor": "recovery-coordinator",
+      "source": "coordinator",
+      "details": {
+        "attempt_id": "01a08cb9-bd38-700a-b217-d704a970b777",
+        "observation_id": "01a08cb9-bd40-7a41-ba49-10b63ff78c59"
+      },
+      "to_state": "uncertain",
+      "created_at": "2026-09-10T19:09:37.983558+00:00",
+      "event_type": "recovery_result",
+      "from_state": "prepared",
+      "reason_code": "evidence_insufficient",
+      "operation_id": "01a08cb9-bb2e-7d3f-a2f7-47c21df93cfa",
+      "operation_version": 4
+    }
+  ],
+  "ledger": [
+    {
+      "id": "01a08cb9-bb2c-7a81-81e5-e4d5f60234f3",
+      "template": "step-1",
+      "recipient": "researcher@example.invalid",
+      "committed_at": "2026-09-10T19:09:37.452707+00:00",
+      "operation_id": "01a08cb9-bb29-7acc-8c1d-0417fa6c10b0",
+      "experiment_run_id": "05dfdba9-6964-4016-b581-c44d2dcfed12",
+      "logical_message_key": "05dfdba9-6964-4016-b581-c44d2dcfed12/step-1"
+    },
+    {
+      "id": "01a08cb9-bb30-72c7-bd53-6e140001a7f9",
+      "template": "step-2",
+      "recipient": "researcher@example.invalid",
+      "committed_at": "2026-09-10T19:09:37.456201+00:00",
+      "operation_id": "01a08cb9-bb2e-7d3f-a2f7-47c21df93cfa",
+      "experiment_run_id": "05dfdba9-6964-4016-b581-c44d2dcfed12",
+      "logical_message_key": "05dfdba9-6964-4016-b581-c44d2dcfed12/step-2"
+    }
+  ]
+}

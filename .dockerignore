@@ -4,3 +4,9 @@ bin
 coverage
 results
 .env*
+
+output
+.claude
+docs/report
+docs/evidence
+demo

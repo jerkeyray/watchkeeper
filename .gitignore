@@ -7,3 +7,8 @@
 *.coverprofile
 /results/*
 !/results/.gitkeep
+
+# Local tools and generated presentation scratch
+/.claude/
+/output/
+/demo

@@ -31,6 +31,8 @@ type Result struct {
 	StartedAt        time.Time `json:"started_at"`
 	DurationMS       float64   `json:"duration_ms"`
 	RecoveryMS       *float64  `json:"recovery_ms,omitempty"`
+	DetectionMS      *float64  `json:"detection_ms,omitempty"`
+	ResolutionMS     *float64  `json:"resolution_ms,omitempty"`
 	Completed        bool      `json:"completed"`
 	Censored         bool      `json:"censored"`
 	Duplicate        bool      `json:"duplicate"`

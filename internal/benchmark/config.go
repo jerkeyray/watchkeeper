@@ -10,6 +10,9 @@ import (
 	"io"
 	"os"
 	"slices"
+	"time"
+
+	"github.com/jerkeyray/watchkeeper/internal/api"
 )
 
 var Strategies = []string{"blind_retry", "idempotency_key_retry", "checkpoint_recovery", "watchkeeper"}
@@ -27,6 +30,10 @@ type Config struct {
 	OutageMS    int      `json:"outage_ms"`
 	DelayMS     int      `json:"delay_ms"`
 	DrainMS     int      `json:"drain_ms"`
+	// PreparedGraceMS is the ordinary recovery age threshold measured from
+	// preparation or retry start. Explicit reconciliation scheduling can
+	// override it. Experiments configure and retain it as a tuning parameter.
+	PreparedGraceMS int `json:"prepared_grace_ms"`
 	// AssertNoDuplicateEffects names strategies that a validation run requires to
 	// produce no duplicate or excess effects. Research configurations leave it
 	// empty so that measured duplication is recorded rather than assumed away.
@@ -76,6 +83,12 @@ func LoadConfig(path string) (Config, error) {
 	}
 	if c.DrainMS == 0 {
 		c.DrainMS = 10000
+	}
+	if c.PreparedGraceMS == 0 {
+		c.PreparedGraceMS = int(api.DefaultPreparedGrace / time.Millisecond)
+	}
+	if c.PreparedGraceMS < 1 || c.PreparedGraceMS > c.DeadlineMS {
+		return c, fmt.Errorf("prepared_grace_ms must be positive and below the execution deadline")
 	}
 	if c.Repetitions < 1 || c.DeadlineMS < 1 || c.OutageMS < 1 || c.DelayMS < 1 || c.DrainMS < 1 {
 		return c, fmt.Errorf("durations and repetitions must be positive")

@@ -22,6 +22,7 @@ Send `Authorization: Bearer <token>` on protected requests. Operation prepare, r
 | `GET /v1/operations` | Public token | Filter and cursor-page operations. |
 | `GET /v1/operations/{id}` | Public token | Read current operation and receipt. |
 | `GET /v1/operations/{id}/events` | Public token | Cursor-page its audit events. |
+| `POST /v1/operations/{id}/dispatches` | Public token | Grant one send permission for the current attempt. |
 | `POST /v1/operations/{id}/confirmations` | Public token | Atomically store receipt and confirm. |
 | `POST /v1/operations/{id}/attempts` | Public token | Begin an authorized retry. |
 | `POST /v1/operations/{id}/reconciliation-requests` | Admin token | Ask for immediate re-verification. |
@@ -42,8 +43,8 @@ curl -sS http://localhost:8080/v1/operations \
     "logical_key":"send-confirmation",
     "target_service":"email",
     "action":"send",
-    "request":{"recipient":"researcher@example.invalid","template":"confirmation"},
-    "expected_effect":{"recipient":"researcher@example.invalid","template":"confirmation"},
+    "request":{"recipient":"researcher@example.invalid","template":"confirmation","logical_message_key":"confirmation"},
+    "expected_effect":{"recipient":"researcher@example.invalid","template":"confirmation","logical_message_key":"confirmation"},
     "capability_profile":"receipt_status"
   }'
 ```
@@ -52,14 +53,14 @@ The first request returns `201 Created`. An identical natural-key replay returns
 
 ## Confirm
 
-Send the current operation version and the simulator's durable receipt:
+After prepare, acquire single-send authorization and dispatch with the stable operation ID. Then send the version returned by authorization and the simulator's durable receipt. The example assumes prepare version 1 advanced to authorization version 2:
 
 ```bash
 curl -sS http://localhost:8080/v1/operations/OPERATION_ID/confirmations \
   -H 'Authorization: Bearer watchkeeper-dev-token' \
   -H 'Content-Type: application/json' \
   -d '{
-    "expected_version":1,
+    "expected_version":2,
     "service_receipt_id":"SERVICE_RECEIPT_ID",
     "receipt":{"status":"committed"}
   }'

@@ -66,7 +66,7 @@ The design recognizes five mechanisms:
 4. Idempotency-key deduplication or repeat.
 5. No useful evidence.
 
-The current email adapter implements authoritative status lookup under the `receipt_status` profile. The other profiles are modeled in the schema and domain vocabulary but are not runnable integrations yet.
+The email adapter implements all four experimental profiles: `receipt_status`, `idempotency_only`, `indirect_unique`, and `none`. The verifier queries status, validates the keyed-replay capability, inspects exact expected fields, or returns unknown according to the declared profile. See [Recovery](recovery.md) and [Evaluation](evaluation.md).
 
 ## Guarantees and boundaries
 

@@ -1,6 +1,6 @@
 # Recovery model
 
-Recovery starts when a prepared operation remains unresolved beyond its grace period or an operator explicitly requests reconciliation. It verifies before deciding; it does not redispatch merely because local confirmation is missing.
+Recovery starts when a prepared operation remains unresolved beyond its grace period or an operator explicitly requests reconciliation. The ordinary grace is measured from `prepared_at`, set on preparation or retry start, rather than from dispatch authorization. It verifies before deciding; it does not redispatch merely because local confirmation is missing.
 
 ## Normal path and recovery path
 
@@ -27,7 +27,7 @@ Claim tokens are secrets. Only a SHA-256 hash is persisted; tokens should not be
 
 ## Observation classification
 
-The current email verifier calls the simulator status endpoint with the stable operation ID:
+The email verifier selects status lookup, indirect inspection, durable keyed-replay verification, or no evidence from the declared capability. Its normalized observation drives the following rules:
 
 | Status evidence | Observation | Decision |
 | --- | --- | --- |
@@ -36,7 +36,7 @@ The current email verifier calls the simulator status endpoint with the stable o
 | Dispatch was never authorized | no external evidence required | `Retryable`; stale authorization is fenced by version |
 | Service guarantees durable keyed replay | `unknown` with explicit idempotency contract | `Retryable` |
 | Count is greater than one | `contradictory` | `Uncertain` |
-| Service or network is temporarily unavailable | `transient_error` | Keep recoverable and schedule another verification. |
+| Service or network is temporarily unavailable | `transient_error` | Schedule another verification while the attempt count is below five; exhausted transient verification becomes `Uncertain`. |
 | Evidence is non-authoritative or cannot distinguish outcomes | `unknown` | `Uncertain` |
 
 The raw response is retained as JSON evidence, and an external receipt reference is stored when available.

@@ -147,6 +147,13 @@ func (c *Coordinator) RunOnce(ctx context.Context) (int, error) {
 	}
 	processed := 0
 	for _, claim := range claims {
+		// Reported before verification so that recovery latency can be split
+		// into detection delay and verification/resolution time.
+		if c.Hook != nil {
+			if err := c.Hook(ctx, "recovery_claimed", claim.Operation); err != nil {
+				return processed, err
+			}
+		}
 		observation, verifyErr := c.Verifier.Verify(ctx, claim.Operation)
 		if verifyErr != nil {
 			observation = client.Observation{Mechanism: "status_lookup", Outcome: "transient_error", Evidence: json.RawMessage(`{}`)}
